@@ -2,20 +2,27 @@
   <schema_version>3.0</schema_version>
   <name>set_fcu_inputs</name>
   <uid>c640f600-2673-4493-b15d-16440ae5442a</uid>
-  <version_id>fc788c2f-4d60-437a-a8fd-f490cd043f01</version_id>
+  <version_id>3a520ce7-4bd6-47a9-804a-e4273eb0d27b</version_id>
   <xml_checksum>4435983D</xml_checksum>
   <class_name>SetFCUInputs</class_name>
   <display_name>Set FCU Inputs</display_name>
-  <description>Allows the user to change ZoneHVACFourPipeFanCoil inputs. </description>
-  <modeler_description>Replace this text with an explanation for the energy modeler specifically.  It should explain how the measure is modeled, including any requirements about how the baseline model must be set up, major assumptions, citations of references to applicable modeling resources, etc.  The energy modeler should be able to read this description and understand what changes the measure is making to the model and why these changes are being made.  Because the Modeler Description is written for an expert audience, using common abbreviations for brevity is good practice.</modeler_description>
+  <description>Sets inputs for one or more Fan Coil Units and associated Clg Coils and Htg Coils. Objects can be filtered by name using the search string.</description>
+  <modeler_description>Loops through ZoneHVACFourPipeFanCoil objects, CoilCoolingWater, and CoilHeatingWater objects and sets fields based on user arguments.</modeler_description>
   <arguments>
     <argument>
       <name>string</name>
-      <display_name>Set inputs for equipment containing the string (case sensitive). Enter *.* for all FCUs.</display_name>
+      <display_name>Set inputs for equipment containing the string:</display_name>
+      <description>(case sensitive, leave blank for all)</description>
       <type>String</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>*.*</default_value>
+    </argument>
+    <argument>
+      <name>fcu_sched</name>
+      <display_name>Availability Schedule Name</display_name>
+      <type>Choice</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
     </argument>
     <argument>
       <name>fcu_sa_flow</name>
@@ -23,7 +30,6 @@
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>fcu_sa_rat_low</name>
@@ -31,7 +37,6 @@
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>fcu_sa_rat_med</name>
@@ -39,7 +44,6 @@
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>fcu_oa_flow</name>
@@ -47,7 +51,13 @@
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
+    </argument>
+    <argument>
+      <name>fcu_oa_sched</name>
+      <display_name>Outdoor Air Schedule Name</display_name>
+      <type>Choice</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
     </argument>
     <argument>
       <name>fcu_cw_flow_max</name>
@@ -55,7 +65,6 @@
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>fcu_cw_flow_min</name>
@@ -63,7 +72,6 @@
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>fcu_clg_tol</name>
@@ -71,7 +79,6 @@
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>fcu_max_hw_flow</name>
@@ -79,39 +86,41 @@
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>fcu_min_hw_flow</name>
-      <display_name>FCU: Maximum Hot Water Flow Rate {gal/min}</display_name>
+      <display_name>FCU: Minimum Hot Water Flow Rate {gal/min}</display_name>
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>fcu_htg_tol</name>
-      <display_name>FCU: Cooling Convergence Tolerance</display_name>
+      <display_name>FCU: Heating Convergence Tolerance</display_name>
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
+    </argument>
+    <argument>
+      <name>cc_sched</name>
+      <display_name>Clg Coil: Availability Schedule Name</display_name>
+      <type>Choice</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
     </argument>
     <argument>
       <name>cc_wtr_flow</name>
-      <display_name>Clg Coil: Design Water Flow Rate {ft3/min}</display_name>
+      <display_name>Clg Coil: Design Water Flow Rate {gal/min}</display_name>
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>cc_air_flow</name>
-      <display_name>Clg Coil: Design Air Flow Rate {ft3/min}</display_name>
+      <display_name>Clg Coil: Design Air Flow Rate {GPM} </display_name>
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>cc_ewt</name>
@@ -119,7 +128,6 @@
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>cc_eat</name>
@@ -127,7 +135,6 @@
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>cc_lat</name>
@@ -135,7 +142,6 @@
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>cc_humrat_in</name>
@@ -143,7 +149,6 @@
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>cc_humrat_out</name>
@@ -151,11 +156,10 @@
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>cc_analysis</name>
-      <display_name>Type of Analysis</display_name>
+      <display_name>Clg Coil: Type of Analysis</display_name>
       <type>Choice</type>
       <required>true</required>
       <model_dependent>false</model_dependent>
@@ -173,7 +177,7 @@
     </argument>
     <argument>
       <name>cc_config</name>
-      <display_name>Heat Exchanger Configuration</display_name>
+      <display_name>Clg Coil: Heat Exchanger Configuration</display_name>
       <type>Choice</type>
       <required>true</required>
       <model_dependent>false</model_dependent>
@@ -190,12 +194,18 @@
       </choices>
     </argument>
     <argument>
+      <name>hc_sched</name>
+      <display_name>Htg Coil: Availability Schedule Name</display_name>
+      <type>Choice</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+    </argument>
+    <argument>
       <name>hc_ua</name>
       <display_name>Htg Coil: U-Factor Times Area Value {Btu/h-R}</display_name>
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>hc_wtr_flow_max</name>
@@ -203,7 +213,6 @@
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>hc_perf</name>
@@ -229,7 +238,6 @@
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>hc_ewt</name>
@@ -237,7 +245,6 @@
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>hc_eat</name>
@@ -245,7 +252,6 @@
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>hc_lwt</name>
@@ -253,7 +259,6 @@
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>hc_lat</name>
@@ -261,7 +266,6 @@
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>hc_conv_ratio</name>
@@ -269,7 +273,6 @@
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
   </arguments>
   <provenances/>
@@ -293,7 +296,7 @@
       <filename>SetFourPipeFanCoilAttributes_Test.rb</filename>
       <filetype>rb</filetype>
       <usage_type>test</usage_type>
-      <checksum>478EADD3</checksum>
+      <checksum>60CBBA42</checksum>
     </file>
     <file>
       <version>
@@ -304,7 +307,7 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>3ABE16ED</checksum>
+      <checksum>B02E307B</checksum>
     </file>
   </files>
 </measure>
