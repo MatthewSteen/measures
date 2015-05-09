@@ -2,20 +2,20 @@
   <schema_version>3.0</schema_version>
   <name>set_fan_inputs</name>
   <uid>1371b7e7-4307-4f4d-8673-f5f4600f5645</uid>
-  <version_id>f691ff2e-3fcf-48c0-95c7-c44df2c26434</version_id>
+  <version_id>3759ad45-38df-4c58-afe2-100565cb6009</version_id>
   <xml_checksum>F78494F2</xml_checksum>
   <class_name>SetFanInputs</class_name>
   <display_name>Set Fan Inputs</display_name>
-  <description>Allows the user to change the inputs for all fans in the model based on fan type. Negative values are ignored.</description>
-  <modeler_description>Loops through all fans of one type and sets fields based on user arguments. Negative default values are used to filter which arguments the user wants to change.</modeler_description>
+  <description>Set one or more inputs for fans of a single type. Measure can be applied to select fans using the search string.</description>
+  <modeler_description>Loops through all fans of one type and sets fields based on user arguments.</modeler_description>
   <arguments>
     <argument>
       <name>string</name>
-      <display_name>Set inputs for equipment containing the string (case sensitive, enter *.* for all):</display_name>
+      <display_name>Set inputs for equipment containing the string</display_name>
+      <description>case sensitive, leave blank for all</description>
       <type>String</type>
-      <required>true</required>
+      <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>*.*</default_value>
     </argument>
     <argument>
       <name>fan_type</name>
@@ -54,41 +54,36 @@
       <name>fan_eff_tot</name>
       <display_name>Fan Total Efficiency</display_name>
       <type>Double</type>
-      <required>true</required>
+      <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>fan_rise</name>
       <display_name>Pressure Rise {inH2O}</display_name>
       <type>Double</type>
-      <required>true</required>
+      <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>fan_flow</name>
       <display_name>Maximum Flow Rate {ft3/min}</display_name>
       <type>Double</type>
-      <required>true</required>
+      <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>fan_eff_mot</name>
       <display_name>Motor Efficiency</display_name>
       <type>Double</type>
-      <required>true</required>
+      <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>fan_mot_heat</name>
       <display_name>Motor In Airstream Fraction</display_name>
       <type>Double</type>
-      <required>true</required>
+      <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>vav_min_flow_method</name>
@@ -112,83 +107,57 @@
       <name>vav_min_flow_frac</name>
       <display_name>VAV: Fan Power Minimum Flow Fraction</display_name>
       <type>Double</type>
-      <required>true</required>
+      <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>vav_min_flow_rate</name>
       <display_name>VAV: Fan Power Minimum Air Flow Rate {ft3/min}</display_name>
       <type>Double</type>
-      <required>true</required>
+      <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
-    </argument>
-    <argument>
-      <name>vav_coeffs</name>
-      <display_name>Change VAV fan power coefficients?</display_name>
-      <type>Boolean</type>
-      <required>true</required>
-      <model_dependent>false</model_dependent>
-      <default_value>false</default_value>
-      <choices>
-        <choice>
-          <value>true</value>
-          <display_name>true</display_name>
-        </choice>
-        <choice>
-          <value>false</value>
-          <display_name>false</display_name>
-        </choice>
-      </choices>
     </argument>
     <argument>
       <name>vav_c1</name>
       <display_name>VAV: Fan Power Coefficient 1</display_name>
       <type>Double</type>
-      <required>true</required>
+      <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>vav_c2</name>
       <display_name>VAV: Fan Power Coefficient 2</display_name>
       <type>Double</type>
-      <required>true</required>
+      <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>vav_c3</name>
       <display_name>VAV: Fan Power Coefficient 3</display_name>
       <type>Double</type>
-      <required>true</required>
+      <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>vav_c4</name>
       <display_name>VAV: Fan Power Coefficient 4</display_name>
       <type>Double</type>
-      <required>true</required>
+      <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>vav_c5</name>
       <display_name>VAV: Fan Power Coefficient 5</display_name>
       <type>Double</type>
-      <required>true</required>
+      <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>ef_end_use</name>
       <display_name>EF: End-Use Subcategory</display_name>
       <type>String</type>
-      <required>true</required>
+      <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>General</default_value>
     </argument>
     <argument>
       <name>ef_flow_sched</name>
@@ -217,7 +186,7 @@
     </argument>
     <argument>
       <name>ef_temp_sched</name>
-      <display_name>EF: Minimum Zone Temperature Limit Schedule Name</display_name>
+      <display_name>EF: Minimum Zone Temperature Limit Schedule Name TODO</display_name>
       <type>Choice</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
@@ -251,7 +220,7 @@
       <filename>SetFanInputs_Test.rb</filename>
       <filetype>rb</filetype>
       <usage_type>test</usage_type>
-      <checksum>50A1B064</checksum>
+      <checksum>FD312A9E</checksum>
     </file>
     <file>
       <version>
@@ -262,7 +231,7 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>B61E813F</checksum>
+      <checksum>0E5DBCDC</checksum>
     </file>
   </files>
 </measure>

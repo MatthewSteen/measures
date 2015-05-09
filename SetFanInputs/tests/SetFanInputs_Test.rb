@@ -1,10 +1,10 @@
-require 'openstudio'
+require "openstudio"
 
-require 'openstudio/ruleset/ShowRunnerOutput'
+require "openstudio/ruleset/ShowRunnerOutput"
 
 require "#{File.dirname(__FILE__)}/../measure.rb"
 
-require 'test/unit'
+require "test/unit"
 
 class SetVAVFanCoefficients_Test < Test::Unit::TestCase
 
