@@ -9,10 +9,8 @@ class AddRemoveOrReplaceWindows < OpenStudio::Ruleset::ModelUserScript
   # define the arguments that the user will enter
   def arguments(model)
 
-    # create argument vector
     args = OpenStudio::Ruleset::OSArgumentVector.new
 
-    # measure function
     function_choices = OpenStudio::StringVector.new
     function_choices << "Add"
     function_choices << "Remove"
@@ -21,7 +19,6 @@ class AddRemoveOrReplaceWindows < OpenStudio::Ruleset::ModelUserScript
     function.setDisplayName("Function")
     args << function
 
-    # facade
     facade_choices = OpenStudio::StringVector.new
     facade_choices << "All"
     facade_choices << "North"
@@ -32,19 +29,16 @@ class AddRemoveOrReplaceWindows < OpenStudio::Ruleset::ModelUserScript
     facade.setDisplayName("Facade")
     args << facade
 
-    # window to wall ratio
     wwr = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("wwr", true)
     wwr.setDisplayName("Window to Wall Ratio (fraction)")
     wwr.setDefaultValue(0.4)
     args << wwr
 
-    # offset
     offset = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("offset", true)
     offset.setDisplayName("Height Offset from Floor (in)")
     offset.setDefaultValue(30.0)
     args << offset
 
-    # return argument vector
     return args
 
   end
@@ -65,7 +59,7 @@ class AddRemoveOrReplaceWindows < OpenStudio::Ruleset::ModelUserScript
     wwr = runner.getDoubleArgumentValue("wwr", user_arguments)
     offset = runner.getDoubleArgumentValue("offset", user_arguments)
 
-    # check arguments fo reasonableness
+    # check arguments for reasonableness
     if wwr <= 0 or wwr >= 1
       runner.registerError("Window to wall ratio must be > 0 and < 1.")
       return false
@@ -81,7 +75,7 @@ class AddRemoveOrReplaceWindows < OpenStudio::Ruleset::ModelUserScript
       return false
     end
 
-    # unit conversions
+    #setup OpenStudio units that we will need
     unit_offset_ip = OpenStudio::createUnit("ft").get
     unit_offset_si = OpenStudio::createUnit("m").get
     unit_area_ip = OpenStudio::createUnit("ft^2").get
@@ -89,7 +83,10 @@ class AddRemoveOrReplaceWindows < OpenStudio::Ruleset::ModelUserScript
     unit_cost_per_area_ip = OpenStudio::createUnit("1/ft^2").get #$/ft^2 does not work
     unit_cost_per_area_si = OpenStudio::createUnit("1/m^2").get
 
+    #define starting units
     offset_ip = OpenStudio::Quantity.new(offset/12, unit_offset_ip)
+
+    #unit conversion
     offset_si = OpenStudio.convert(offset_ip, unit_offset_si).get
 
     # initialize variables
@@ -100,17 +97,17 @@ class AddRemoveOrReplaceWindows < OpenStudio::Ruleset::ModelUserScript
     final_gross_ext_wall_area = 0.0 #includes windows and doors
     final_ext_window_area = 0.0
 
-    # flag for not applicable
+    #flag for not applicable
     ext_walls = false
     windows_added = false
 
-    # flag to track notifications of zone multipliers
+    #flag to track notifications of zone multipliers
     space_warning_issued = []
 
-    # flag to track warning for new windows without construction
+    #flag to track warning for new windows without construction
     empty_const_warning = false
 
-    # calculate initial envelope cost as negative value
+    #calculate initial envelope cost as negative value
     envelope_cost = 0
     constructions = model.getConstructions
     constructions.each do |construction|
