@@ -9,10 +9,8 @@ class AddRemoveOrReplaceWindowOverhangs < OpenStudio::Ruleset::ModelUserScript
   # define the arguments that the user will input
   def arguments(model)
 
-    # create arguments vector
     args = OpenStudio::Ruleset::OSArgumentVector.new
 
-    # function
     function_choices = OpenStudio::StringVector.new
     function_choices << "Add"
     function_choices << "Remove"
@@ -21,7 +19,6 @@ class AddRemoveOrReplaceWindowOverhangs < OpenStudio::Ruleset::ModelUserScript
     function.setDisplayName("Function")
     args << function
 
-    # facade
     facade_choices = OpenStudio::StringVector.new
     facade_choices << "All"
     facade_choices << "North"
@@ -32,29 +29,25 @@ class AddRemoveOrReplaceWindowOverhangs < OpenStudio::Ruleset::ModelUserScript
     facade.setDisplayName("Facade")
     args << facade
 
-    # depth
     depth = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("depth", false)
     depth.setDisplayName("Depth (in)")
     depth.setDescription("horizontal length of overhang")
     args << depth
 
-    # depth offset
     depth_offset = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("depth_offset", true)
     depth_offset.setDisplayName("Depth Offset (in)")
-    depth_offset.setDescription("height and width offset from window edge")
+    depth_offset.setDescription("height and width offset from top of window")
     depth_offset.setDefaultValue(0)
     args << depth_offset
 
-    # projection factor
     projection_factor = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("projection_factor", false)
     projection_factor.setDisplayName("Projection Factor (fraction)")
     projection_factor.setDescription("overhang depth / window height")
     args << projection_factor
 
-    # projection factor offset
     projection_factor_offset = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("projection_factor_offset", true)
     projection_factor_offset.setDisplayName("Projection Factor Offset (fraction)")
-    projection_factor_offset.setDescription("height and width offset from window edge")
+    projection_factor_offset.setDescription("height and width offset from top of window")
     projection_factor_offset.setDefaultValue(0)
     args << projection_factor_offset
 
@@ -83,7 +76,6 @@ class AddRemoveOrReplaceWindowOverhangs < OpenStudio::Ruleset::ModelUserScript
     construction.setDisplayName("Construction (optional)")
     args << construction
 
-    # return arguments vector
     return args
 
   end
@@ -98,7 +90,7 @@ class AddRemoveOrReplaceWindowOverhangs < OpenStudio::Ruleset::ModelUserScript
       return false
     end
 
-    # assign user inputs to variables, check values, and convert to SI units for simulation
+    # assign user arguments to variables, check values, and convert to SI units for simulation
     function = runner.getStringArgumentValue("function", user_arguments)
     facade = runner.getStringArgumentValue("facade", user_arguments)
 
@@ -159,7 +151,7 @@ class AddRemoveOrReplaceWindowOverhangs < OpenStudio::Ruleset::ModelUserScript
     if construction.empty?
       handle = runner.getOptionalStringArgumentValue("construction", user_arguments)
       if handle.empty?
-#        runner.registerInfo("No construction was chosen.")
+        #runner.registerInfo("No construction was chosen.")
         construction_chosen = false
       else
         runner.registerError("The selected construction with handle '#{handle}' was not found in the model. It may have been removed by another measure.")
@@ -233,7 +225,7 @@ class AddRemoveOrReplaceWindowOverhangs < OpenStudio::Ruleset::ModelUserScript
     runner.registerInitialCondition("number of overhangs = #{number_of_exist_space_shading_surf}")
 
     # add remove or replace window overhangs
-    # loop through subsurfaces finding exterior walls with proper orientation
+    # loop through subsurfaces finding exterior walls with selected orientation
     subsurfaces.each do |s|
 
       next if not s.outsideBoundaryCondition == "Outdoors"
@@ -284,6 +276,11 @@ class AddRemoveOrReplaceWindowOverhangs < OpenStudio::Ruleset::ModelUserScript
 
       else #function == "Add" or function == "Replace"
 
+        if depth.nil? and projection_factor.nil?
+          runner.registerError("A depth or projection factor must be entered.")
+          return false
+        end
+
         projection_factor_too_small = false
         if projection_factor_too_small
           # new overhang would be too small and would cause errors in OpenStudio
@@ -327,7 +324,7 @@ class AddRemoveOrReplaceWindowOverhangs < OpenStudio::Ruleset::ModelUserScript
 
       end
 
-    end #add remove or replace overhangs
+    end
 
     if not overhang_added and not function == "Remove"
       runner.registerAsNotApplicable("No windows were found to add overhangs to on #{facade} exterior walls.")

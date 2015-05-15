@@ -1,13 +1,13 @@
 <measure>
   <schema_version>3.0</schema_version>
   <name>add_remove_or_replace_window_overhangs</name>
-  <uid>0b2330df-e692-4b04-a386-46221b71aab7</uid>
-  <version_id>75d51f71-9355-4162-ba01-dffe713c80cb</version_id>
+  <uid>effcb289-e796-4809-ad0c-593ec4f6ade6</uid>
+  <version_id>f46d8535-23cf-422e-9a28-834f80374f11</version_id>
   <xml_checksum>6FAFA9DE</xml_checksum>
   <class_name>AddRemoveOrReplaceWindowOverhangs</class_name>
   <display_name>Add Remove Or Replace Window Overhangs</display_name>
   <description>Adds, removes, or replaces window overhangs by depth or projection factor on the selected facade.</description>
-  <modeler_description>Loops through subsurfaces and either adds, removes, or replaces an overhang.</modeler_description>
+  <modeler_description>Loops through subsurfaces and either adds, removes, or replaces overhangs.</modeler_description>
   <arguments>
     <argument>
       <name>function</name>
@@ -119,10 +119,10 @@
   </attributes>
   <files>
     <file>
-      <filename>AddOverhangsbyLength_Test.rb</filename>
+      <filename>AddRemoveOrReplaceWindowOverhangs_Test.rb</filename>
       <filetype>rb</filetype>
       <usage_type>test</usage_type>
-      <checksum>B33EA892</checksum>
+      <checksum>61553C03</checksum>
     </file>
     <file>
       <version>
@@ -133,7 +133,7 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>FCB5AB59</checksum>
+      <checksum>8E03B0D1</checksum>
     </file>
   </files>
 </measure>

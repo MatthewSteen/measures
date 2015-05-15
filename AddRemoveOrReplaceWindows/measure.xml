@@ -2,12 +2,12 @@
   <schema_version>3.0</schema_version>
   <name>add_remove_or_replace_windows</name>
   <uid>a83df92d-0b0d-4f5a-ba0a-1ef90b78395a</uid>
-  <version_id>6fc20c3f-100c-469b-b755-5223ae4780e1</version_id>
+  <version_id>79c075b5-ea2e-4dff-a04c-2ee87465ee54</version_id>
   <xml_checksum>6FAFA9DE</xml_checksum>
   <class_name>AddRemoveOrReplaceWindows</class_name>
   <display_name>Add Remove Or Replace Windows</display_name>
-  <description>Run Surface Matching measure before applying this one to avoid adding windows to interior partition walls. Adds ribbon windows to surfaces on the selected facade if none exist. Removes all windows on the selected facade. Replaces all windows on the selected facade with ribbon windows</description>
-  <modeler_description>Loops through surfaces on the selected facade and either adds, removes, or replaces a subsurface.</modeler_description>
+  <description>Before running this measure run surface matching and remove window overhangs. Adds ribbon windows to exterior walls on the selected facade if none exist. Removes all windows on the selected facade. Replaces all windows on the selected facade with ribbon windows.</description>
+  <modeler_description>Loops through exterior surfaces on the selected facade and either adds, removes, or replaces a subsurface.</modeler_description>
   <arguments>
     <argument>
       <name>function</name>
@@ -62,6 +62,7 @@
     <argument>
       <name>wwr</name>
       <display_name>Window to Wall Ratio (fraction)</display_name>
+      <description>window area / wall area</description>
       <type>Double</type>
       <required>true</required>
       <model_dependent>false</model_dependent>
@@ -76,12 +77,7 @@
       <default_value>30</default_value>
     </argument>
   </arguments>
-  <provenances>
-  <provenance>
-    <author>MatthewSteen</author>
-  </provenance>
-  <provenance_required>true</provenance_required>
-</provenances>
+  <provenances/>
   <tags>
     <tag>Envelope.Fenestration</tag>
   </tags>
@@ -113,7 +109,7 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>35A5CC39</checksum>
+      <checksum>8A07F1E4</checksum>
     </file>
   </files>
 </measure>
