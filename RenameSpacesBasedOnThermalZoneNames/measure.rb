@@ -11,7 +11,6 @@ class RenameSpacesBasedOnThermalZoneNames < OpenStudio::Ruleset::ModelUserScript
 
     args = OpenStudio::Ruleset::OSArgumentVector.new
 
-    # argument for renaming spaces with common parent zone
     rename = OpenStudio::Ruleset::OSArgument::makeBoolArgument("rename", true)
     rename.setDisplayName("Rename spaces with common thermal zone?")
     rename.setDescription("Spaces will be renamed sequentially.")

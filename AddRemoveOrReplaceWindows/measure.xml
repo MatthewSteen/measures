@@ -77,7 +77,12 @@
       <default_value>30</default_value>
     </argument>
   </arguments>
-  <provenances/>
+  <provenances>
+  <provenance>
+    <author>MatthewSteen</author>
+  </provenance>
+  <provenance_required>true</provenance_required>
+</provenances>
   <tags>
     <tag>Envelope.Fenestration</tag>
   </tags>

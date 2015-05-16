@@ -2,8 +2,8 @@
   <schema_version>3.0</schema_version>
   <name>rename_spaces_based_on_thermal_zone_names</name>
   <uid>45156538-d9af-4e84-9901-886705cfd278</uid>
-  <version_id>864532fd-2a01-4759-bea2-2a7fc4ca02e0</version_id>
-  <xml_checksum>45097B60</xml_checksum>
+  <version_id>2b6bb41f-1011-4970-a411-812e4cda74fa</version_id>
+  <xml_checksum>057E8D9D</xml_checksum>
   <class_name>RenameSpacesBasedOnThermalZoneNames</class_name>
   <display_name>Rename Spaces Based On Thermal Zone Names</display_name>
   <description>Renames spaces based on parent thermal zone names. If a zone has more than one space associated with it the measure will either ignore or rename sequentially based on user input.</description>
@@ -31,7 +31,7 @@
   </arguments>
   <provenances/>
   <tags>
-    <tag>Envelope.Form</tag>
+    <tag>Whole Building.Space Types</tag>
   </tags>
   <attributes>
     <attribute>
@@ -61,7 +61,7 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>C8183046</checksum>
+      <checksum>83615013</checksum>
     </file>
   </files>
 </measure>

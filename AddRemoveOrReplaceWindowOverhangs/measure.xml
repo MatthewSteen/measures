@@ -2,7 +2,7 @@
   <schema_version>3.0</schema_version>
   <name>add_remove_or_replace_window_overhangs</name>
   <uid>effcb289-e796-4809-ad0c-593ec4f6ade6</uid>
-  <version_id>f46d8535-23cf-422e-9a28-834f80374f11</version_id>
+  <version_id>1667c83c-ca70-4441-b394-2733222d539a</version_id>
   <xml_checksum>6FAFA9DE</xml_checksum>
   <class_name>AddRemoveOrReplaceWindowOverhangs</class_name>
   <display_name>Add Remove Or Replace Window Overhangs</display_name>
@@ -70,7 +70,7 @@
     <argument>
       <name>depth_offset</name>
       <display_name>Depth Offset (in)</display_name>
-      <description>height and width offset from window edge</description>
+      <description>height and width offset from top of window</description>
       <type>Double</type>
       <required>true</required>
       <model_dependent>false</model_dependent>
@@ -87,7 +87,7 @@
     <argument>
       <name>projection_factor_offset</name>
       <display_name>Projection Factor Offset (fraction)</display_name>
-      <description>height and width offset from window edge</description>
+      <description>height and width offset from top of window</description>
       <type>Double</type>
       <required>true</required>
       <model_dependent>false</model_dependent>
@@ -101,7 +101,12 @@
       <model_dependent>false</model_dependent>
     </argument>
   </arguments>
-  <provenances/>
+  <provenances>
+  <provenance>
+    <author>MatthewSteen</author>
+  </provenance>
+  <provenance_required>true</provenance_required>
+</provenances>
   <tags>
     <tag>Envelope.Fenestration</tag>
   </tags>
@@ -133,7 +138,7 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>8E03B0D1</checksum>
+      <checksum>69768896</checksum>
     </file>
   </files>
 </measure>
