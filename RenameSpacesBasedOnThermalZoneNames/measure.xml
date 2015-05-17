@@ -29,7 +29,12 @@
       </choices>
     </argument>
   </arguments>
-  <provenances/>
+  <provenances>
+    <provenance>
+      <author>MatthewSteen</author>
+    </provenance>
+    <provenance_required>true</provenance_required>
+  </provenances>
   <tags>
     <tag>Whole Building.Space Types</tag>
   </tags>

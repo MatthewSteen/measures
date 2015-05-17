@@ -102,11 +102,11 @@
     </argument>
   </arguments>
   <provenances>
-  <provenance>
-    <author>MatthewSteen</author>
-  </provenance>
-  <provenance_required>true</provenance_required>
-</provenances>
+    <provenance>
+      <author>MatthewSteen</author>
+    </provenance>
+    <provenance_required>true</provenance_required>
+  </provenances>
   <tags>
     <tag>Envelope.Fenestration</tag>
   </tags>
