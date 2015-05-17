@@ -1,7 +1,7 @@
 # start the measure
 class RenameZoneHVACEquipmentAndComponents < OpenStudio::Ruleset::ModelUserScript
 
-  # define the name that a user will see
+  # define the name that the user will see
   def name
     return "Rename Zone HVAC Equipment And Components"
   end
@@ -9,33 +9,30 @@ class RenameZoneHVACEquipmentAndComponents < OpenStudio::Ruleset::ModelUserScrip
   # define the arguments that the user will input
   def arguments(model)
 
-    # create argument vector
     args = OpenStudio::Ruleset::OSArgumentVector.new
 
-    # argument for zone hvac equipment
     eqpt_choices = OpenStudio::StringVector.new
     eqpt_choices << "ZoneHVACFourPipeFanCoil"
     eqpt_choices << "ZoneHVACPackagedTerminalAirConditioner"
     eqpt_choices << "ZoneHVACPackagedTerminalHeatPump"
-    #eqpt_choices << "ZoneHVACUnitHeater"
+    eqpt_choices << "ZoneHVACUnitHeater"
     eqpt_choices << "ZoneHVACWaterToAirHeatPump"
     eqpt_type = OpenStudio::Ruleset::OSArgument::makeChoiceArgument("eqpt_type", eqpt_choices, true)
     eqpt_type.setDisplayName("Zone HVAC Equipment Type")
     args << eqpt_type
 
-    # argument for rename zone hvac equipment
     rename_hvac_eqpt = OpenStudio::Ruleset::OSArgument::makeBoolArgument("rename_hvac_eqpt", false)
     rename_hvac_eqpt.setDisplayName("Rename zone HVAC equipment?")
     rename_hvac_eqpt.setDefaultValue(true)
     args << rename_hvac_eqpt
 
-    # argument for rename zone hvac equipment components
     rename_hvac_comp = OpenStudio::Ruleset::OSArgument::makeBoolArgument("rename_hvac_comp", false)
     rename_hvac_comp.setDisplayName("Rename zone HVAC equipment components?")
     rename_hvac_comp.setDefaultValue(true)
     args << rename_hvac_comp
 
-    # return argument vector
+    #TODO add optional strings for suffixes
+
     return args
 
   end
@@ -79,7 +76,7 @@ class RenameZoneHVACEquipmentAndComponents < OpenStudio::Ruleset::ModelUserScrip
 
       zone_eqpt.each do |eqpt|
 
-        # Fan Coil Units
+        # fan coil units
         if eqpt_type == "ZoneHVACFourPipeFanCoil" and eqpt.to_ZoneHVACFourPipeFanCoil.is_initialized
 
           # get equipment and components
@@ -112,7 +109,7 @@ class RenameZoneHVACEquipmentAndComponents < OpenStudio::Ruleset::ModelUserScrip
             count_htg_coils += 1
           end
 
-        # Packaged Terminal Air Conditioners
+        # packaged terminal air conditioners
         elsif eqpt_type == "ZoneHVACPackagedTerminalAirConditioner" and eqpt.to_ZoneHVACPackagedTerminalAirConditioner.is_initialized
 
           # get equipment and components
@@ -154,7 +151,7 @@ class RenameZoneHVACEquipmentAndComponents < OpenStudio::Ruleset::ModelUserScrip
             count_clg_coils += 1
           end
 
-        # Packaged Terminal Heat Pumps
+        # packaged terminal heat pumps
         elsif eqpt_type == "ZoneHVACPackagedTerminalHeatPump" and eqpt.to_ZoneHVACPackagedTerminalHeatPump.is_initialized
 
           # get equipment and components
@@ -194,7 +191,42 @@ class RenameZoneHVACEquipmentAndComponents < OpenStudio::Ruleset::ModelUserScrip
             count_clg_coils += 1
           end
 
-        # Water Source Heat Pumps
+        # unit heaters
+        elsif eqpt_type == "ZoneHVACUnitHeater" and eqpt.to_ZoneHVACUnitHeater.is_initialized
+
+          uh = eqpt.to_ZoneHVACUnitHeater.get
+
+          if uh.supplyAirFan.to_FanOnOff.is_initialized
+            fan = uh.supplyAirFan.to_FanOnOff.get
+          elsif uh.supplyAirFan.to_FanConstantVolume.is_initialized
+            fan = uh.supplyAirFan.to_FanConstantVolume.get
+          elsif uh.supplyAirFan.to_FanVariableVolume.is_initialized
+            fan = uh.supplyAirFan.to_FanVariableVolume.get
+          end
+
+          if uh.heatingCoil.to_CoilHeatingElectric.is_initialized
+            htg_coil = uh.heatingCoil.to_CoilHeatingElectric.get
+          elsif uh.heatingCoil.to_CoilHeatingGas.is_initialized
+            htg_coil = uh.heatingCoil.to_CoilHeatingGas.get
+          elsif uh.heatingCoil.to_CoilHeatingWater.is_initialized
+            htg_coil = uh.heatingCoil.to_CoilHeatingWater.get
+          end
+
+          # rename equipment
+          if rename_hvac_eqpt == true
+            uh.setName("#{z.name} UH")
+            count_eqpt += 1
+          end
+
+          # rename components
+          if rename_hvac_comp == true
+            fan.setName("#{uh.name} Fan")
+            count_fans += 1
+            htg_coil.setName("#{uh.name} Htg Coil")
+            count_htg_coils += 1
+          end
+
+        # water source heat pumps
         elsif eqpt_type == "ZoneHVACWaterToAirHeatPump" and eqpt.to_ZoneHVACWaterToAirHeatPump.is_initialized
 
           # get equipment and components
