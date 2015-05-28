@@ -76,8 +76,7 @@ class SetFanInputs < OpenStudio::Ruleset::ModelUserScript
     fan_end_use.setDisplayName("End-Use Subcategory")
     args << fan_end_use
 '
-    # FanOnOff
-    # TODO curves?
+    # FanOnOff #TODO add curves?
 
     # FanVariableVolume
     vav_choices = OpenStudio::StringVector.new

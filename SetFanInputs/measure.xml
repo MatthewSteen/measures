@@ -2,7 +2,7 @@
   <schema_version>3.0</schema_version>
   <name>set_fan_inputs</name>
   <uid>1371b7e7-4307-4f4d-8673-f5f4600f5645</uid>
-  <version_id>12b03e99-6aca-49cf-afd3-c0fa7125926d</version_id>
+  <version_id>5e2884dc-582d-445b-ba67-8ce6f4f7ff1a</version_id>
   <xml_checksum>F78494F2</xml_checksum>
   <class_name>SetFanInputs</class_name>
   <display_name>Set Fan Inputs</display_name>
@@ -231,7 +231,7 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>D211DF69</checksum>
+      <checksum>C131FA78</checksum>
     </file>
   </files>
 </measure>
