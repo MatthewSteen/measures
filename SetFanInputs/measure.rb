@@ -6,19 +6,14 @@ class SetFanInputs < OpenStudio::Ruleset::ModelUserScript
     return "Set Fan Inputs"
   end
 
-  # define the arguments that the user will input open
+  # define the arguments that the user will input
   def arguments(model)
 
     args = OpenStudio::Ruleset::OSArgumentVector.new
 
-    # OS version = 1.7.0
-    # EP version = 8.2.0
-
-    # argument for string
 		string = OpenStudio::Ruleset::OSArgument::makeStringArgument("string", false)
-		string.setDisplayName("Set inputs for equipment containing the string")
+		string.setDisplayName("Set inputs for equipment containing the string:")
     string.setDescription("(case sensitive, leave blank for all)")
-    #string.setDefaultValue("*.*")
 		args << string
 
     fan_choices = OpenStudio::StringVector.new
@@ -31,20 +26,6 @@ class SetFanInputs < OpenStudio::Ruleset::ModelUserScript
     fan_type.setDefaultValue("FanConstantVolume")
     args << fan_type
 
-    # common arguments
-'
-Fan:ConstantVolume,
-    ,                        !- Name
-    ,                        !- Availability Schedule Name
-    0.7,                     !- Fan Total Efficiency
-    ,                        !- Pressure Rise {Pa}
-    ,                        !- Maximum Flow Rate {m3/s}
-    0.9,                     !- Motor Efficiency
-    1,                       !- Motor In Airstream Fraction
-    ,                        !- Air Inlet Node Name
-    ,                        !- Air Outlet Node Name
-    General;                 !- End-Use Subcategory
-'
     #populate choice argument for schedules in the model
     sch_handles = OpenStudio::StringVector.new
     sch_display_names = OpenStudio::StringVector.new
@@ -64,7 +45,8 @@ Fan:ConstantVolume,
         end
       end
     end
-		#argument for schedules
+
+    # common arguments
     fan_sched = OpenStudio::Ruleset::OSArgument::makeChoiceArgument("fan_sched", sch_handles, sch_display_names, false)
     fan_sched.setDisplayName("Availability Schedule Name")
     args << fan_sched
@@ -89,48 +71,14 @@ Fan:ConstantVolume,
     fan_mot_heat.setDisplayName("Motor In Airstream Fraction")
     args << fan_mot_heat
 
-    #TODO not exposed in GUI as of 1.7.3
+    #TODO not exposed in GUI as of 1.7.4
 '    fan_end_use = OpenStudio::Ruleset::OSArgument::makeStringArgument("fan_end_use", false)
     fan_end_use.setDisplayName("End-Use Subcategory")
     args << fan_end_use
 '
-'
-Fan:OnOff,
-    ,                        !- Name
-    ,                        !- Availability Schedule Name
-    0.6,                     !- Fan Total Efficiency
-    ,                        !- Pressure Rise {Pa}
-    ,                        !- Maximum Flow Rate {m3/s}
-    0.8,                     !- Motor Efficiency
-    1,                       !- Motor In Airstream Fraction
-    ,                        !- Air Inlet Node Name
-    ,                        !- Air Outlet Node Name
-    ,                        !- Fan Power Ratio Function of Speed Ratio Curve Name
-    ,                        !- Fan Efficiency Ratio Function of Speed Ratio Curve Name
-    General;                 !- End-Use Subcategory
-'
-    # FanOnOff TODO curves?
-'
-Fan:VariableVolume,
-    ,                        !- Name
-    ,                        !- Availability Schedule Name
-    0.7,                     !- Fan Total Efficiency
-    ,                        !- Pressure Rise {Pa}
-    ,                        !- Maximum Flow Rate {m3/s}
-    Fraction,                !- Fan Power Minimum Flow Rate Input Method
-    0.25,                    !- Fan Power Minimum Flow Fraction
-    ,                        !- Fan Power Minimum Air Flow Rate {m3/s}
-    0.9,                     !- Motor Efficiency
-    1,                       !- Motor In Airstream Fraction
-    ,                        !- Fan Power Coefficient 1
-    ,                        !- Fan Power Coefficient 2
-    ,                        !- Fan Power Coefficient 3
-    ,                        !- Fan Power Coefficient 4
-    ,                        !- Fan Power Coefficient 5
-    ,                        !- Air Inlet Node Name
-    ,                        !- Air Outlet Node Name
-    General;                 !- End-Use Subcategory
-'
+    # FanOnOff
+    # TODO curves?
+
     # FanVariableVolume
     vav_choices = OpenStudio::StringVector.new
     vav_choices << "FixedFlowRate"
@@ -167,21 +115,7 @@ Fan:VariableVolume,
     vav_c5 = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("vav_c5", false)
     vav_c5.setDisplayName("VAV: Fan Power Coefficient 5")
     args << vav_c5
-'
-Fan:ZoneExhaust,
-    ,                        !- Name
-    ,                        !- Availability Schedule Name
-    0.6,                     !- Fan Total Efficiency
-    ,                        !- Pressure Rise {Pa}
-    ,                        !- Maximum Flow Rate {m3/s}
-    ,                        !- Air Inlet Node Name
-    ,                        !- Air Outlet Node Name
-    General,                 !- End-Use Subcategory
-    ,                        !- Flow Fraction Schedule Name
-    Coupled,                 !- System Availability Manager Coupling Mode
-    ,                        !- Minimum Zone Temperature Limit Schedule Name
-    0;                       !- Balanced Exhaust Fraction Schedule Name
-'
+
     # FanZoneExhaust
     ef_end_use = OpenStudio::Ruleset::OSArgument::makeStringArgument("ef_end_use", false)
     ef_end_use.setDisplayName("EF: End-Use Subcategory")
@@ -209,7 +143,7 @@ Fan:ZoneExhaust,
 
     return args
 
-  end #def arguments
+  end
 
   # define what happens when the measure is run
   def run(model, runner, user_arguments)
@@ -388,12 +322,12 @@ Fan:ZoneExhaust,
     # initialize variables
     counter = 0
 
-    # DO STUFF
+    # set fan inputs
     fans.each do |fan|
 
-      if string.empty? or fan.name.to_s.include? string  #== "*.*"
+      if string.empty? or fan.name.to_s.include? string
 
-        # set common inputs
+        # common inputs
         fan.setAvailabilitySchedule(fan_sched) unless fan_sched.nil?
         fan.setFanEfficiency(fan_eff_tot) unless fan_eff_tot.nil?
         fan.setPressureRise(fan_rise_si) unless fan_rise.nil?
@@ -407,12 +341,12 @@ Fan:ZoneExhaust,
           fan.setEndUseSubcategory(fan_end_use)
         end
 '
-        # set on off inputs
+        # on off inputs
         if fan_type == "FanOnOff"
           #TODO future curves
         end
 
-        # set vav inputs
+        # vav inputs
         if fan_type == "FanVariableVolume"
           fan.setFanPowerMinimumFlowRateInputMethod(vav_min_flow_method)
           fan.setFanPowerMinimumFlowFraction(vav_min_flow_frac) unless vav_min_flow_frac.nil?
@@ -424,7 +358,7 @@ Fan:ZoneExhaust,
         	fan.setFanPowerCoefficient5(vav_c5) unless vav_c5.nil?
         end
 
-        # set exhaust fan inputs
+        # exhaust fan inputs
         if fan_type == "FanZoneExhaust"
 
           fan.setEndUseSubcategory(ef_end_use) unless ef_end_use.nil?

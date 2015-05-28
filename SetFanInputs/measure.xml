@@ -2,7 +2,7 @@
   <schema_version>3.0</schema_version>
   <name>set_fan_inputs</name>
   <uid>1371b7e7-4307-4f4d-8673-f5f4600f5645</uid>
-  <version_id>3759ad45-38df-4c58-afe2-100565cb6009</version_id>
+  <version_id>12b03e99-6aca-49cf-afd3-c0fa7125926d</version_id>
   <xml_checksum>F78494F2</xml_checksum>
   <class_name>SetFanInputs</class_name>
   <display_name>Set Fan Inputs</display_name>
@@ -11,8 +11,8 @@
   <arguments>
     <argument>
       <name>string</name>
-      <display_name>Set inputs for equipment containing the string</display_name>
-      <description>case sensitive, leave blank for all</description>
+      <display_name>Set inputs for equipment containing the string:</display_name>
+      <description>(case sensitive, leave blank for all)</description>
       <type>String</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
@@ -231,7 +231,7 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>0E5DBCDC</checksum>
+      <checksum>D211DF69</checksum>
     </file>
   </files>
 </measure>
