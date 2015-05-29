@@ -6,7 +6,7 @@
   <xml_checksum>F78494F2</xml_checksum>
   <class_name>SetFanInputs</class_name>
   <display_name>Set Fan Inputs</display_name>
-  <description>Set one or more inputs for fans of a single type. Measure can be applied to select fans using the search string.</description>
+  <description>Set one or more inputs for fans of a single type. Measure can be applied to select fans using the search string. Currently does not check inputs for reasonable values.</description>
   <modeler_description>Loops through all fans of one type and sets fields based on user arguments.</modeler_description>
   <arguments>
     <argument>
