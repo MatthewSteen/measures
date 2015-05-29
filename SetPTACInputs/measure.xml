@@ -2,164 +2,178 @@
   <schema_version>3.0</schema_version>
   <name>set_ptac_inputs</name>
   <uid>2eeabb8a-392e-45e7-b55c-d99bd8f10c72</uid>
-  <version_id>febb8b82-e531-4c30-8ca9-cb072792aadd</version_id>
+  <version_id>5551159e-bfed-456f-a842-1491cea7a42a</version_id>
   <xml_checksum>4435983D</xml_checksum>
   <class_name>SetPTACInputs</class_name>
   <display_name>Set PTAC Inputs</display_name>
-  <description>Allows the user to change one or more Packaged Terminal Air Conditioner fields in the model. Can be applied to all PTACs or filtered based on name.</description>
+  <description>Sets one or more inputs for packaged terminal air conditioners (PTACs) and associated cooling coils (CCs) and heating coils (HCs). Measure can be applied to select PTACs using the search string. Currently only the most commonly used inputs for single speed DX and hot water coils are included.</description>
   <modeler_description>Loops through ZoneHVACPackagedTerminalAirConditioner objects in the model and changes attributes based on user input.</modeler_description>
   <arguments>
     <argument>
       <name>string</name>
-      <display_name>Set inputs for equipment containing the string (case sensitive, enter *.* for all):</display_name>
+      <display_name>Set inputs for equipment containing the string:</display_name>
+      <description>(case sensitive, leave blank for all)</description>
       <type>String</type>
-      <required>true</required>
+      <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>*.*</default_value>
     </argument>
     <argument>
-      <name>ptac_flow_clg</name>
-      <display_name>PTAC: Supply Air Flow Rate During Cooling Operation {ft3/min}</display_name>
-      <type>Double</type>
-      <required>true</required>
+      <name>ptac_sched</name>
+      <display_name>PTAC: Availability Schedule Name</display_name>
+      <type>Choice</type>
+      <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
-      <name>ptac_flow_htg</name>
-      <display_name>PTAC: Supply Air Flow Rate During Heating Operation {ft3/min}</display_name>
+      <name>ptac_sa_clg</name>
+      <display_name>PTAC: Cooling Supply Air Flow Rate {ft3/min}</display_name>
       <type>Double</type>
-      <required>true</required>
+      <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
-      <name>ptac_flow_no_clg_or_htg</name>
-      <display_name>PTAC: Supply Air Flow Rate When No Cooling or Heating is Needed {ft3/min}</display_name>
+      <name>ptac_sa_htg</name>
+      <display_name>PTAC: Heating Supply Air Flow Rate {ft3/min}</display_name>
       <type>Double</type>
-      <required>true</required>
+      <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
+    </argument>
+    <argument>
+      <name>ptac_sa_no_load</name>
+      <display_name>PTAC: No Load Supply Air Flow Rate {ft3/min}</display_name>
+      <type>Double</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
     </argument>
     <argument>
       <name>ptac_oa_clg</name>
-      <display_name>PTAC: Outdoor Air Flow Rate During Cooling Operation {ft3/min}</display_name>
+      <display_name>PTAC: Cooling Outdoor Air Flow Rate {ft3/min}</display_name>
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>ptac_oa_htg</name>
-      <display_name>PTAC: Outdoor Air Flow Rate During Heating Operation {ft3/min}</display_name>
+      <display_name>PTAC: Heating Outdoor Air Flow Rate {ft3/min}</display_name>
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
-      <name>ptac_oa_no_clg_or_htg</name>
-      <display_name>PTAC: Outdoor Air Flow Rate When No Cooling or Heating is Needed {ft3/min}</display_name>
+      <name>ptac_oa_no_load</name>
+      <display_name>PTAC: No Load Outdoor Air Flow Rate {ft3/min}</display_name>
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
-      <name>fan_eff_tot</name>
-      <display_name>Fan: Fan Total Efficiency</display_name>
-      <type>Double</type>
-      <required>true</required>
-      <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
-    </argument>
-    <argument>
-      <name>fan_rise</name>
-      <display_name>Fan: Pressure Rise {inH2O}</display_name>
-      <type>Double</type>
-      <required>true</required>
-      <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
-    </argument>
-    <argument>
-      <name>fan_flow</name>
-      <display_name>Fan: Maximum Flow Rate {ft3/min}</display_name>
-      <type>Double</type>
-      <required>true</required>
-      <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
-    </argument>
-    <argument>
-      <name>fan_eff_mot</name>
-      <display_name>Fan: Motor Efficiency</display_name>
-      <type>Double</type>
-      <required>true</required>
-      <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
-    </argument>
-    <argument>
-      <name>hc_ewt</name>
-      <display_name>Htg Coil: Rated Inlet Water Temperature {F}</display_name>
-      <type>Double</type>
+      <name>ptac_sa_sched</name>
+      <display_name>PTAC: Supply Air Fan Operating Mode Schedule Name</display_name>
+      <type>Choice</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
-    </argument>
-    <argument>
-      <name>hc_eat</name>
-      <display_name>Htg Coil: Rated Inlet Air Temperature {F}</display_name>
-      <type>Double</type>
-      <required>false</required>
-      <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
-    </argument>
-    <argument>
-      <name>hc_lwt</name>
-      <display_name>Htg Coil: Rated Outlet Water Temperature {F}</display_name>
-      <type>Double</type>
-      <required>false</required>
-      <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
-    </argument>
-    <argument>
-      <name>hc_lat</name>
-      <display_name>Htg Coil: Rated Outlet Air Temperature {F}</display_name>
-      <type>Double</type>
-      <required>false</required>
-      <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>cc_cap</name>
-      <display_name>Clg Coil: Gross Rated Total Cooling Capacity {Btu/h}</display_name>
+      <display_name>CC: Gross Rated Total Cooling Capacity {Btu/h}</display_name>
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>cc_shr</name>
-      <display_name>Clg Coil: Gross Rated Sensible Heat Ratio</display_name>
+      <display_name>CC: Gross Rated Sensible Heat Ratio</display_name>
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
       <name>cc_cop</name>
-      <display_name>Clg Coil: Gross Rated Cooling COP {Btuh/Btuh}</display_name>
+      <display_name>CC: Gross Rated Cooling COP {Btuh/Btuh}</display_name>
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
     </argument>
     <argument>
-      <name>cc_flow</name>
-      <display_name>Clg Coil: Rated Air Flow Rate {ft3/min}</display_name>
+      <name>cc_air_flow</name>
+      <display_name>CC: Rated Air Flow Rate {ft3/min}</display_name>
       <type>Double</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
-      <default_value>-1</default_value>
+    </argument>
+    <argument>
+      <name>hc_sched</name>
+      <display_name>HC: Availability Schedule Name</display_name>
+      <type>Choice</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+    </argument>
+    <argument>
+      <name>hc_ua</name>
+      <display_name>HC: U-Factor Times Area Value {Btu/h-R}</display_name>
+      <type>Double</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+    </argument>
+    <argument>
+      <name>hc_wtr_flow_max</name>
+      <display_name>HC: Maximum Water Flow Rate {ft3/min}</display_name>
+      <type>Double</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+    </argument>
+    <argument>
+      <name>hc_perf</name>
+      <display_name>HC: Performance Input Method</display_name>
+      <type>Choice</type>
+      <required>true</required>
+      <model_dependent>false</model_dependent>
+      <default_value>UFactorTimesAreaAndDesignWaterFlowRate</default_value>
+      <choices>
+        <choice>
+          <value>NominalCapacity</value>
+          <display_name>NominalCapacity</display_name>
+        </choice>
+        <choice>
+          <value>UFactorTimesAreaAndDesignWaterFlowRate</value>
+          <display_name>UFactorTimesAreaAndDesignWaterFlowRate</display_name>
+        </choice>
+      </choices>
+    </argument>
+    <argument>
+      <name>hc_cap</name>
+      <display_name>HC: Rated Capacity {Btu/h}</display_name>
+      <type>Double</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+    </argument>
+    <argument>
+      <name>hc_ewt</name>
+      <display_name>HC: Rated Inlet Water Temperature {F}</display_name>
+      <type>Double</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+    </argument>
+    <argument>
+      <name>hc_eat</name>
+      <display_name>HC: Rated Inlet Air Temperature {F}</display_name>
+      <type>Double</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+    </argument>
+    <argument>
+      <name>hc_lwt</name>
+      <display_name>HC: Rated Outlet Water Temperature {F}</display_name>
+      <type>Double</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+    </argument>
+    <argument>
+      <name>hc_lat</name>
+      <display_name>HC: Rated Outlet Air Temperature {F}</display_name>
+      <type>Double</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
     </argument>
   </arguments>
   <provenances/>
@@ -194,7 +208,7 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>27BF1084</checksum>
+      <checksum>7E686304</checksum>
     </file>
   </files>
 </measure>
