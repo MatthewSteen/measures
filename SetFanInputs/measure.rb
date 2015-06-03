@@ -26,6 +26,11 @@ class SetFanInputs < OpenStudio::Ruleset::ModelUserScript
     fan_type.setDefaultValue("FanConstantVolume")
     args << fan_type
 
+    autosize = OpenStudio::Ruleset::OSArgument::makeBoolArgument("autosize", false)
+    autosize.setDisplayName("TODO Autosize all fields?")
+    autosize.setDefaultValue(false)
+    args << autosize
+
     #populate choice argument for schedules in the model
     sch_handles = OpenStudio::StringVector.new
     sch_display_names = OpenStudio::StringVector.new
@@ -158,6 +163,8 @@ class SetFanInputs < OpenStudio::Ruleset::ModelUserScript
     string = runner.getOptionalStringArgumentValue("string", user_arguments)
     string = string.to_s #implicit conversion for optional string
     fan_type = runner.getStringArgumentValue("fan_type", user_arguments)
+
+    #TODO write helper function to check user args
 
     fan_sched = runner.getOptionalWorkspaceObjectChoiceValue("fan_sched", user_arguments, model)
     if fan_sched.empty?
