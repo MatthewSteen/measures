@@ -12,33 +12,49 @@ class SetWSHPInputs < OpenStudio::Ruleset::ModelUserScript
 
     args = OpenStudio::Ruleset::OSArgumentVector.new
 
-    # argument for string
-		string = OpenStudio::Ruleset::OSArgument::makeStringArgument("string", true)
-		string.setDisplayName("Set inputs for equipment containing the string (case sensitive, enter *.* for all):")
-    string.setDefaultValue("*.*")
+    string = OpenStudio::Ruleset::OSArgument::makeStringArgument("string", false)
+		string.setDisplayName("Set inputs for equipment containing the string:")
+    string.setDescription("(case sensitive, leave blank for all)")
 		args << string
-'
-    # argument for autosize
+
     autosize = OpenStudio::Ruleset::OSArgument::makeBoolArgument("autosize", false)
-    autosize.setDisplayName("Autosize all fields?")
+    autosize.setDisplayName("TODO Autosize all fields?")
     autosize.setDefaultValue(false)
     args << autosize
-'
-    # WSHP Inputs
-'
+
+    #populate choice argument for schedules in the model
+    sch_handles = OpenStudio::StringVector.new
+    sch_display_names = OpenStudio::StringVector.new
+    #putting schedule names into hash
+    sch_hash = {}
+    model.getSchedules.each do |sch|
+      sch_hash[sch.name.to_s] = sch
+    end
+    #looping through sorted hash of schedules
+    sch_hash.sort.map do |sch_name, sch|
+      if not sch.scheduleTypeLimits.empty?
+        unitType = sch.scheduleTypeLimits.get.unitType
+        #puts "#{sch.name}, #{unitType}"
+        if unitType == "Availability"
+          sch_handles << sch.handle.to_s
+          sch_display_names << sch_name
+        end
+      end
+    end
+'v8.3
 ZoneHVAC:WaterToAirHeatPump,
-    ,                        !- Name
+    x,                        !- Name
     ,                        !- Availability Schedule Name
     ,                        !- Air Inlet Node Name
     ,                        !- Air Outlet Node Name
     ,                        !- Outdoor Air Mixer Object Type
     ,                        !- Outdoor Air Mixer Name
-    ,                        !- Supply Air Flow Rate During Cooling Operation {m3/s}
-    ,                        !- Supply Air Flow Rate During Heating Operation {m3/s}
-    ,                        !- Supply Air Flow Rate When No Cooling or Heating is Needed {m3/s}
-    ,                        !- Outdoor Air Flow Rate During Cooling Operation {m3/s}
-    ,                        !- Outdoor Air Flow Rate During Heating Operation {m3/s}
-    ,                        !- Outdoor Air Flow Rate When No Cooling or Heating is Needed {m3/s}
+    x,                        !- Cooling Supply Air Flow Rate {m3/s}
+    x,                        !- Heating Supply Air Flow Rate {m3/s}
+    x,                        !- No Load Supply Air Flow Rate {m3/s}
+    x,                        !- Cooling Outdoor Air Flow Rate {m3/s}
+    x,                        !- Heating Outdoor Air Flow Rate {m3/s}
+    x,                        !- No Load Outdoor Air Flow Rate {m3/s}
     ,                        !- Supply Air Fan Object Type
     ,                        !- Supply Air Fan Name
     ,                        !- Heating Coil Object Type
@@ -46,87 +62,54 @@ ZoneHVAC:WaterToAirHeatPump,
     ,                        !- Cooling Coil Object Type
     ,                        !- Cooling Coil Name
     2.5,                     !- Maximum Cycling Rate {cycles/hr}
-    60.0,                    !- Heat Pump Time Constant {s}
+    60,                      !- Heat Pump Time Constant {s}
     0.01,                    !- Fraction of On-Cycle Power Use
     60,                      !- Heat Pump Fan Delay Time {s}
     ,                        !- Supplemental Heating Coil Object Type
     ,                        !- Supplemental Heating Coil Name
     ,                        !- Maximum Supply Air Temperature from Supplemental Heater {C}
-    21.0,                    !- Maximum Outdoor Dry-Bulb Temperature for Supplemental Heater Operation {C}
+    21,                      !- Maximum Outdoor Dry-Bulb Temperature for Supplemental Heater Operation {C}
     ,                        !- Outdoor Dry-Bulb Temperature Sensor Node Name
     BlowThrough,             !- Fan Placement
     ,                        !- Supply Air Fan Operating Mode Schedule Name
     ,                        !- Availability Manager List Name
-    Cycling;                 !- Heat Pump Coil Water Flow Mode
-
+    Cycling,                 !- Heat Pump Coil Water Flow Mode
+    0;                       !- Design Specification ZoneHVAC Sizing Object Name
 '
-    wshp_flow_clg = OpenStudio::Ruleset::OSArgument::makeDoubleArgument('wshp_flow_clg', true)
-    wshp_flow_clg.setDisplayName("WSHP: Supply Air Flow Rate During Cooling Operation {ft3/min}")
-    wshp_flow_clg.setDefaultValue(-1)
-    args << wshp_flow_clg
+    # wshp arguments
+    wshp_sched = OpenStudio::Ruleset::OSArgument::makeChoiceArgument("wshp_sched", sch_handles, sch_display_names, false)
+    wshp_sched.setDisplayName("WSHP: Availability Schedule Name")
+    args << wshp_sched
 
-    wshp_flow_htg = OpenStudio::Ruleset::OSArgument::makeDoubleArgument('wshp_flow_htg', true)
-    wshp_flow_htg.setDisplayName("WSHP: Supply Air Flow Rate During Heating Operation {ft3/min}")
-    wshp_flow_htg.setDefaultValue(-1)
-    args << wshp_flow_htg
+    wshp_sa_clg = OpenStudio::Ruleset::OSArgument::makeDoubleArgument('wshp_sa_clg', false)
+    wshp_sa_clg.setDisplayName("WSHP: Cooling Supply Air Flow Rate {ft3/min}")
+    args << wshp_sa_clg
 
-    wshp_flow_no_clg_or_htg = OpenStudio::Ruleset::OSArgument::makeDoubleArgument('wshp_flow_no_clg_or_htg', true)
-    wshp_flow_no_clg_or_htg.setDisplayName("WSHP: Supply Air Flow Rate When No Cooling or Heating is Needed {ft3/min}")
-    wshp_flow_no_clg_or_htg.setDefaultValue(-1)
-    args << wshp_flow_no_clg_or_htg
+    wshp_sa_htg = OpenStudio::Ruleset::OSArgument::makeDoubleArgument('wshp_sa_htg', false)
+    wshp_sa_htg.setDisplayName("WSHP: Heating Supply Air Flow Rate {ft3/min}")
+    args << wshp_sa_htg
 
-    wshp_oa_clg = OpenStudio::Ruleset::OSArgument::makeDoubleArgument('wshp_oa_clg', true)
-    wshp_oa_clg.setDisplayName("WSHP: Outdoor Air Flow Rate During Cooling Operation {ft3/min}")
-    wshp_oa_clg.setDefaultValue(-1)
+    wshp_sa_no_load = OpenStudio::Ruleset::OSArgument::makeDoubleArgument('wshp_sa_no_load', false)
+    wshp_sa_no_load.setDisplayName("WSHP: No Load Supply Air Flow Rate {ft3/min}")
+    args << wshp_sa_no_load
+
+    wshp_oa_clg = OpenStudio::Ruleset::OSArgument::makeDoubleArgument('wshp_oa_clg', false)
+    wshp_oa_clg.setDisplayName("WSHP: Cooling Outdoor Air Flow Rate {ft3/min}")
     args << wshp_oa_clg
 
-    wshp_oa_htg = OpenStudio::Ruleset::OSArgument::makeDoubleArgument('wshp_oa_htg', true)
-    wshp_oa_htg.setDisplayName("WSHP: Outdoor Air Flow Rate During Heating Operation {ft3/min}")
-    wshp_oa_htg.setDefaultValue(-1)
+    wshp_oa_htg = OpenStudio::Ruleset::OSArgument::makeDoubleArgument('wshp_oa_htg', false)
+    wshp_oa_htg.setDisplayName("WSHP: Heating Outdoor Air Flow Rate {ft3/min}")
     args << wshp_oa_htg
 
-    wshp_oa_no_clg_or_htg = OpenStudio::Ruleset::OSArgument::makeDoubleArgument('wshp_oa_no_clg_or_htg', true)
-    wshp_oa_no_clg_or_htg.setDisplayName("WSHP: Outdoor Air Flow Rate When No Cooling or Heating is Needed {ft3/min}")
-    wshp_oa_no_clg_or_htg.setDefaultValue(-1)
-    args << wshp_oa_no_clg_or_htg
+    wshp_oa_no_load = OpenStudio::Ruleset::OSArgument::makeDoubleArgument('wshp_oa_no_load', false)
+    wshp_oa_no_load.setDisplayName("WSHP: No Load Outdoor Air Flow Rate {ft3/min}")
+    args << wshp_oa_no_load
 
-    # fan schedule TODO see PTAC measure
+    #TODO add args
 
-    # FanOnOff inputs
-'
-Fan:OnOff,
-    ,                        !- Name
-    ,                        !- Availability Schedule Name
-    0.6,                     !- Fan Total Efficiency
-    ,                        !- Pressure Rise {Pa}
-    ,                        !- Maximum Flow Rate {m3/s}
-    0.8,                     !- Motor Efficiency
-    1.0,                     !- Motor In Airstream Fraction
-    ,                        !- Air Inlet Node Name
-    ,                        !- Air Outlet Node Name
-    ,                        !- Fan Power Ratio Function of Speed Ratio Curve Name
-    ,                        !- Fan Efficiency Ratio Function of Speed Ratio Curve Name
-    General;                 !- End-Use Subcategory
-'
-    fan_eff_tot = OpenStudio::Ruleset::OSArgument::makeDoubleArgument('fan_eff_tot', true)
-    fan_eff_tot.setDisplayName("Fan: Fan Total Efficiency")
-    fan_eff_tot.setDefaultValue(-1)
-    args << fan_eff_tot
-
-    fan_rise = OpenStudio::Ruleset::OSArgument::makeDoubleArgument('fan_rise', true)
-    fan_rise.setDisplayName("Fan: Pressure Rise {inH2O}")
-    fan_rise.setDefaultValue(-1)
-    args << fan_rise
-
-    fan_flow = OpenStudio::Ruleset::OSArgument::makeDoubleArgument('fan_flow', true)
-    fan_flow.setDisplayName("Fan: Maximum Flow Rate {ft3/min}")
-    fan_flow.setDefaultValue(-1)
-    args << fan_flow
-
-    fan_eff_mot = OpenStudio::Ruleset::OSArgument::makeDoubleArgument('fan_eff_mot', true)
-    fan_eff_mot.setDisplayName("Fan: Motor Efficiency")
-    fan_eff_mot.setDefaultValue(-1)
-    args << fan_eff_mot
+    wshp_fan_sched = OpenStudio::Ruleset::OSArgument::makeChoiceArgument("wshp_fan_sched", sch_handles, sch_display_names, false)
+    wshp_fan_sched.setDisplayName("WSHP: Supply Air Fan Operating Mode Schedule Name")
+    args << wshp_fan_sched
 '
 Coil:Heating:WaterToAirHeatPump:EquationFit,
     ,                        !- Name
@@ -134,10 +117,10 @@ Coil:Heating:WaterToAirHeatPump:EquationFit,
     ,                        !- Water Outlet Node Name
     ,                        !- Air Inlet Node Name
     ,                        !- Air Outlet Node Name
-    ,                        !- Rated Air Flow Rate {m3/s}
-    ,                        !- Rated Water Flow Rate {m3/s}
-    ,                        !- Gross Rated Heating Capacity {W}
-    ,                        !- Gross Rated Heating COP
+    x,                        !- Rated Air Flow Rate {m3/s}
+    x,                        !- Rated Water Flow Rate {m3/s}
+    x,                        !- Gross Rated Heating Capacity {W}
+    x,                        !- Gross Rated Heating COP
     ,                        !- Heating Capacity Coefficient 1
     ,                        !- Heating Capacity Coefficient 2
     ,                        !- Heating Capacity Coefficient 3
@@ -149,26 +132,21 @@ Coil:Heating:WaterToAirHeatPump:EquationFit,
     ,                        !- Heating Power Consumption Coefficient 4
     1;                       !- Heating Power Consumption Coefficient 5
 '
-    # Htg Coil inputs
-
+    # htg coil arguments
     hc_air_flow = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("hc_air_flow", false)
     hc_air_flow.setDisplayName("Htg Coil: Rated Air Flow Rate {ft3/min}")
-    hc_air_flow.setDefaultValue(-1)
     args << hc_air_flow
 
     hc_wtr_flow = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("hc_wtr_flow", false)
     hc_wtr_flow.setDisplayName("Htg Coil: Rated Water Flow Rate {ft3/min}")
-    hc_wtr_flow.setDefaultValue(-1)
     args << hc_wtr_flow
 
     hc_cap = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("hc_cap", false)
     hc_cap.setDisplayName("Htg Coil: Gross Rated Heating Capacity {Btu/h}")
-    hc_cap.setDefaultValue(-1)
     args << hc_cap
 
     hc_cop = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("hc_cop", false)
     hc_cop.setDisplayName("Htg Coil: Gross Rated Heating COP")
-    hc_cop.setDefaultValue(-1)
     args << hc_cop
 '
 Coil:Cooling:WaterToAirHeatPump:EquationFit,
@@ -177,11 +155,11 @@ Coil:Cooling:WaterToAirHeatPump:EquationFit,
     ,                        !- Water Outlet Node Name
     ,                        !- Air Inlet Node Name
     ,                        !- Air Outlet Node Name
-    ,                        !- Rated Air Flow Rate {m3/s}
-    ,                        !- Rated Water Flow Rate {m3/s}
-    ,                        !- Gross Rated Total Cooling Capacity {W}
-    ,                        !- Gross Rated Sensible Cooling Capacity {W}
-    ,                        !- Gross Rated Cooling COP
+    x,                        !- Rated Air Flow Rate {m3/s}
+    x,                        !- Rated Water Flow Rate {m3/s}
+    x,                        !- Gross Rated Total Cooling Capacity {W}
+    x,                        !- Gross Rated Sensible Cooling Capacity {W}
+    x,                        !- Gross Rated Cooling COP
     ,                        !- Total Cooling Capacity Coefficient 1
     ,                        !- Total Cooling Capacity Coefficient 2
     ,                        !- Total Cooling Capacity Coefficient 3
@@ -201,32 +179,39 @@ Coil:Cooling:WaterToAirHeatPump:EquationFit,
     0.0,                     !- Nominal Time for Condensate Removal to Begin {s}
     0.0;                     !- Ratio of Initial Moisture Evaporation Rate and Steady State Latent Capacity {dimensionless}
 '
-    # Clg Coil inputs
-
+    # clg coil arguments
     cc_air_flow = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("cc_air_flow", false)
     cc_air_flow.setDisplayName("Clg Coil: Rated Air Flow Rate {ft3/min}")
-    cc_air_flow.setDefaultValue(-1)
     args << cc_air_flow
 
     cc_wtr_flow = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("cc_wtr_flow", false)
     cc_wtr_flow.setDisplayName("Clg Coil: Rated Water Flow Rate {ft3/min}")
-    cc_wtr_flow.setDefaultValue(-1)
     args << cc_wtr_flow
 
-    cc_cap = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("cc_cap", false)
-    cc_cap.setDisplayName("Clg Coil: Gross Rated Cooling Capacity {Btu/h}")
-    cc_cap.setDefaultValue(-1)
-    args << cc_cap
+    cc_tot_cap = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("cc_tot_cap", false)
+    cc_tot_cap.setDisplayName("Clg Coil: Gross Rated Cooling Capacity {Btu/h}")
+    args << cc_tot_cap
 
     cc_sen_cap = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("cc_sen_cap", false)
     cc_sen_cap.setDisplayName("Clg Coil: Gross Rated Sensible Cooling Capacity {Btu/h}")
-    cc_sen_cap.setDefaultValue(-1)
     args << cc_sen_cap
 
     cc_cop = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("cc_cop", false)
     cc_cop.setDisplayName("Clg Coil: Gross Rated Cooling COP")
-    cc_cop.setDefaultValue(-1)
     args << cc_cop
+
+    # supplemental HC arguments
+    sc_choices = OpenStudio::StringVector.new
+    sc_choices << "CoilHeatingElectric"
+    sc_choices << "CoilHeatingGas"
+    sc_choices << "CoilHeatingWater"
+    sc_type = OpenStudio::Ruleset::OSArgument::makeChoiceArgument("sc_type", sc_choices, false)
+    sc_type.setDisplayName("Supplemental Heating Coil Object Type")
+    args << sc_type
+
+    sc_cap = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("sc_cap", false)
+    sc_cap.setDisplayName("Supplemental Coil Capacity (Btu/h)")
+    args << sc_cap
 
     return args
 
@@ -242,53 +227,169 @@ Coil:Cooling:WaterToAirHeatPump:EquationFit,
       return false
     end
 
-    # assign user inputs to variables and convert to SI units for simulation
-    string = runner.getStringArgumentValue("string", user_arguments)
-    # wshp
-    wshp_oa_clg = runner.getDoubleArgumentValue("wshp_oa_clg", user_arguments)
-    wshp_oa_clg_si = OpenStudio.convert(wshp_oa_clg, "ft^3/min", "m^3/s").get
-    wshp_oa_htg = runner.getDoubleArgumentValue("wshp_oa_htg", user_arguments)
-    wshp_oa_htg_si = OpenStudio.convert(wshp_oa_htg, "ft^3/min", "m^3/s").get
-    wshp_oa_no_clg_or_htg = runner.getDoubleArgumentValue("wshp_oa_no_clg_or_htg", user_arguments)
-    wshp_oa_no_clg_or_htg_si = OpenStudio.convert(wshp_oa_no_clg_or_htg, "ft^3/min", "m^3/s").get
-    # fan
-    fan_eff_tot = runner.getDoubleArgumentValue("fan_eff_tot", user_arguments)
-    fan_flow = runner.getDoubleArgumentValue("fan_flow", user_arguments)
-    fan_flow_si = OpenStudio.convert(fan_flow, "ft^3/min", "m^3/s").get
-    fan_rise = runner.getDoubleArgumentValue("fan_rise", user_arguments)
-    fan_rise_si = OpenStudio.convert(fan_rise, "inH_{2}O", "Pa").get
-    fan_eff_mot = runner.getDoubleArgumentValue("fan_eff_mot", user_arguments)
+    # get user arguments if not empty, convert to SI units for simulation
+    string = runner.getOptionalStringArgumentValue("string", user_arguments)
+    string = string.to_s #implicit conversion for optional string
+
+    wshp_sched = runner.getOptionalWorkspaceObjectChoiceValue("wshp_sched", user_arguments, model)
+    if wshp_sched.empty?
+      wshp_sched = nil
+    else
+      wshp_sched = wshp_sched.get.to_Schedule.get
+    end
+
+    wshp_sa_clg = runner.getOptionalDoubleArgumentValue("wshp_sa_clg", user_arguments)
+    if wshp_sa_clg.empty?
+      wshp_sa_clg = nil
+    else
+      wshp_sa_clg = wshp_sa_clg.get
+      wshp_sa_clg_si = OpenStudio.convert(wshp_sa_clg, "ft^3/min", "m^3/s").get
+    end
+
+    wshp_sa_htg = runner.getOptionalDoubleArgumentValue("wshp_sa_htg", user_arguments)
+    if wshp_sa_htg.empty?
+      wshp_sa_htg = nil
+    else
+      wshp_sa_htg = wshp_sa_htg.get
+      wshp_sa_htg_si = OpenStudio.convert(wshp_sa_htg, "ft^3/min", "m^3/s").get
+    end
+
+    wshp_sa_no_load = runner.getOptionalDoubleArgumentValue("wshp_sa_no_load", user_arguments)
+    if wshp_sa_no_load.empty?
+      wshp_sa_no_load = nil
+    else
+      wshp_sa_no_load = wshp_sa_no_load.get
+      wshp_sa_no_load_si = OpenStudio.convert(wshp_sa_no_load, "ft^3/min", "m^3/s").get
+    end
+
+    wshp_oa_clg = runner.getOptionalDoubleArgumentValue("wshp_oa_clg", user_arguments)
+    if wshp_oa_clg.empty?
+      wshp_oa_clg = nil
+    else
+      wshp_oa_clg = wshp_oa_clg.get
+      wshp_oa_clg_si = OpenStudio.convert(wshp_oa_clg, "ft^3/min", "m^3/s").get
+    end
+
+    wshp_oa_htg = runner.getOptionalDoubleArgumentValue("wshp_oa_htg", user_arguments)
+    if wshp_oa_htg.empty?
+      wshp_oa_htg = nil
+    else
+      wshp_oa_htg = wshp_oa_htg.get
+      wshp_oa_htg_si = OpenStudio.convert(wshp_oa_htg, "ft^3/min", "m^3/s").get
+    end
+
+    wshp_oa_no_load = runner.getOptionalDoubleArgumentValue("wshp_oa_no_load", user_arguments)
+    if wshp_oa_no_load.empty?
+      wshp_oa_no_load = nil
+    else
+      wshp_oa_no_load = wshp_oa_no_load.get
+      wshp_oa_no_load_si = OpenStudio.convert(wshp_oa_no_load, "ft^3/min", "m^3/s").get
+    end
+
+    wshp_fan_sched = runner.getOptionalWorkspaceObjectChoiceValue("wshp_fan_sched", user_arguments, model)
+    if wshp_fan_sched.empty?
+      wshp_fan_sched = nil
+    else
+      wshp_fan_sched = wshp_fan_sched.get.to_Schedule.get
+    end
+
     # htg coil
-    hc_air_flow = runner.getDoubleArgumentValue("hc_air_flow", user_arguments)
-    hc_air_flow_si = OpenStudio.convert(hc_air_flow, "ft^3/min", "m^3/s").get
-    hc_wtr_flow = runner.getDoubleArgumentValue("hc_wtr_flow", user_arguments)
-    hc_wtr_flow_si = OpenStudio.convert(hc_wtr_flow, "ft^3/min", "m^3/s").get
-    hc_cap = runner.getDoubleArgumentValue("hc_cap", user_arguments)
-    hc_cap_si = OpenStudio.convert(hc_cap, "Btu/h", "W").get
-    hc_cop = runner.getDoubleArgumentValue("hc_cop", user_arguments)
+    hc_air_flow = runner.getOptionalDoubleArgumentValue("hc_air_flow", user_arguments)
+    if hc_air_flow.empty?
+      hc_air_flow = nil
+    else
+      hc_air_flow = hc_air_flow.get
+      hc_air_flow_si = OpenStudio.convert(hc_air_flow, "ft^3/min", "m^3/s").get
+    end
+
+    hc_wtr_flow = runner.getOptionalDoubleArgumentValue("hc_wtr_flow", user_arguments)
+    if hc_wtr_flow.empty?
+      hc_wtr_flow = nil
+    else
+      hc_wtr_flow = hc_wtr_flow.get
+      hc_wtr_flow_si = OpenStudio.convert(hc_wtr_flow, "gal/min", "m^3/s").get
+    end
+
+    hc_cap = runner.getOptionalDoubleArgumentValue("hc_cap", user_arguments)
+    if hc_cap.empty?
+      hc_cap = nil
+    else
+      hc_cap = hc_cap.get
+      hc_cap_si = OpenStudio.convert(hc_cap, "Btu/h", "W").get
+    end
+
+    hc_cop = runner.getOptionalDoubleArgumentValue("hc_cop", user_arguments)
+    if hc_cop.empty?
+      hc_cop = nil
+    else
+      hc_cop = hc_cop.get
+    end
+
     # clg coil
-    cc_air_flow = runner.getDoubleArgumentValue("cc_air_flow", user_arguments)
-    cc_air_flow_si = OpenStudio.convert(cc_air_flow, "ft^3/min", "m^3/s").get
-    cc_wtr_flow = runner.getDoubleArgumentValue("cc_wtr_flow", user_arguments)
-    cc_wtr_flow_si = OpenStudio.convert(cc_wtr_flow, "ft^3/min", "m^3/s").get
-    cc_cap = runner.getDoubleArgumentValue("cc_cap", user_arguments)
-    cc_cap_si = OpenStudio.convert(cc_cap, "Btu/h", "W").get
-    cc_sen_cap = runner.getDoubleArgumentValue("cc_sen_cap", user_arguments)
-    cc_sen_cap_si = OpenStudio.convert(cc_sen_cap, "Btu/h", "W").get
-    cc_cop = runner.getDoubleArgumentValue("cc_cop", user_arguments)
+    cc_air_flow = runner.getOptionalDoubleArgumentValue("cc_air_flow", user_arguments)
+    if cc_air_flow.empty?
+      cc_air_flow = nil
+    else
+      cc_air_flow = cc_air_flow.get
+      cc_air_flow_si = OpenStudio.convert(cc_air_flow, "ft^3/min", "m^3/s").get
+    end
+
+    cc_wtr_flow = runner.getOptionalDoubleArgumentValue("cc_wtr_flow", user_arguments)
+    if cc_wtr_flow.empty?
+      cc_wtr_flow = nil
+    else
+      cc_wtr_flow = cc_wtr_flow.get
+      cc_wtr_flow_si = OpenStudio.convert(cc_wtr_flow, "gal/min", "m^3/s").get
+    end
+
+    cc_cap = runner.getOptionalDoubleArgumentValue("cc_cap", user_arguments)
+    if cc_cap.empty?
+      cc_cap = nil
+    else
+      cc_cap = cc_cap.get
+      cc_cap_si = OpenStudio.convert(cc_cap, "Btu/h", "W").get
+    end
+
+    cc_sen_cap = runner.getOptionalDoubleArgumentValue("cc_sen_cap", user_arguments)
+    if cc_sen_cap.empty?
+      cc_sen_cap = nil
+    else
+      cc_sen_cap = cc_sen_cap.get
+      cc_sen_cap_si = OpenStudio.convert(cc_sen_cap, "Btu/h", "W").get
+    end
+
+    cc_cop = runner.getOptionalDoubleArgumentValue("cc_cop", user_arguments)
+    if cc_cop.empty?
+      cc_cop = nil
+    else
+      cc_cop = cc_cop.get
+    end
+
+    # supplemental heating coil
+    sc_type = runner.getOptionalWorkspaceObjectChoiceValue("sc_type", user_arguments, model)
+    if sc_type.empty?
+      sc_type = nil
+    else
+      sc_type = sc_type.get
+    end
+
+    sc_cap = runner.getOptionalDoubleArgumentValue("sc_cap", user_arguments)
+    if sc_cap.empty?
+      sc_cap = nil
+    else
+      sc_cap = sc_cap.get
+      sc_cap_si = OpenStudio.convert(sc_cap, "Btu/h", "W").get
+    end
 
     # get model objects
     wshps = model.getZoneHVACWaterToAirHeatPumps
-    fans = model.getFanOnOffs
-    htg_coils = model.getCoilHeatingWaterToAirHeatPumpEquationFits
-    clg_coils = model.getCoilCoolingWaterToAirHeatPumpEquationFits
 
     # report initial conditions
     runner.registerInitialCondition("Number of WSHPs in the model = #{wshps.size}")
     runner.registerInfo("String = #{string}")
 
     # initialize reporting variables
-    n_wshps = 0
+    count_wshps = 0
     error = false
 
     wshps.each do |wshp|
@@ -297,80 +398,95 @@ Coil:Cooling:WaterToAirHeatPump:EquationFit,
 
         runner.registerInfo("Setting fields for: #{wshp.name}")
 
-        # get components
-        fan = wshp.supplyAirFan.to_FanOnOff.get #TODO add other types in versions > 1.7.0
-        htg_coil = wshp.heatingCoil.to_CoilHeatingWaterToAirHeatPumpEquationFit.get
-        clg_coil = wshp.coolingCoil.to_CoilCoolingWaterToAirHeatPumpEquationFit.get
+        # get WSHP components
+        hc = wshp.heatingCoil.to_CoilHeatingWaterToAirHeatPumpEquationFit.get
+        cc = wshp.coolingCoil.to_CoilCoolingWaterToAirHeatPumpEquationFit.get
+        if sc_type == "CoilHeatingElectric"
+          sc = wshp.supplementalHeatingCoil.to_CoilHeatingElectric.get
+        elsif sc_type == "to_CoilHeatingGas"
+          sc = wshp.supplementalHeatingCoil.to_CoilHeatingGas.get
+        elsif sc_type =="to_CoilHeatingWater"
+          sc = wshp.supplementalHeatingCoil.to_CoilHeatingWater.get
+        end
 
         # set WSHP fields
-        if wshp_oa_clg > 0
+        wshp.setAvailabilitySchedule(wshp_sched) unless wshp_sched.nil?
+
+        unless wshp_sa_clg_si.nil?
+          optionalDouble = OpenStudio::OptionalDouble.new(wshp_sa_clg_si)
+          wshp.setSupplyAirFlowRateDuringCoolingOperation(optionalDouble)
+        end
+
+        unless wshp_sa_htg_si.nil?
+          optionalDouble = OpenStudio::OptionalDouble.new(wshp_sa_htg_si)
+          wshp.setSupplyAirFlowRateDuringHeatingOperation(optionalDouble)
+        end
+
+        unless wshp_sa_no_load_si.nil?
+          optionalDouble = OpenStudio::OptionalDouble.new(wshp_sa_no_load_si)
+          wshp.setSupplyAirFlowRateWhenNoCoolingorHeatingisNeeded(optionalDouble)
+        end
+
+        unless wshp_oa_clg_si.nil?
           optionalDouble = OpenStudio::OptionalDouble.new(wshp_oa_clg_si)
           wshp.setOutdoorAirFlowRateDuringCoolingOperation(optionalDouble)
         end
-        if wshp_oa_htg > 0
+
+        unless wshp_oa_htg_si.nil?
           optionalDouble = OpenStudio::OptionalDouble.new(wshp_oa_htg_si)
           wshp.setOutdoorAirFlowRateDuringHeatingOperation(optionalDouble)
         end
-        if wshp_oa_no_clg_or_htg > 0
-          optionalDouble = OpenStudio::OptionalDouble.new(wshp_oa_no_clg_or_htg_si)
+
+        unless wshp_oa_no_load_si.nil?
+          optionalDouble = OpenStudio::OptionalDouble.new(wshp_oa_no_load_si)
           wshp.setOutdoorAirFlowRateWhenNoCoolingorHeatingisNeeded(optionalDouble)
         end
 
-        # set fan fields
-        if fan_eff_tot > 0
-          fan.setFanEfficiency(fan_eff_tot)
-        end
-        if fan_rise_si > 0
-          fan.setPressureRise(fan_rise_si)
-        end
-        if fan_flow_si > 0
-          fan.setMaximumFlowRate(fan_flow_si)
-        end
-        if fan_eff_mot > 0
-          fan.setMotorEfficiency(fan_eff_mot)
-        end
+        wshp.setSupplyAirFanOperatingModeSchedule(wshp_fan_sched) unless wshp_fan_sched.nil?
 
-        # set htg coil fields
-        if hc_air_flow > 0
+        count_wshps += 1
+
+        # set HC fields
+        unless hc_air_flow_si.nil?
           optionalDouble = OpenStudio::OptionalDouble.new(hc_air_flow_si)
-          htg_coil.setRatedAirFlowRate(optionalDouble)
+          hc.setRatedAirFlowRate(optionalDouble)
         end
-        if hc_wtr_flow > 0
+
+        unless hc_wtr_flow_si.nil?
           optionalDouble = OpenStudio::OptionalDouble.new(hc_wtr_flow_si)
-          htg_coil.setRatedWaterFlowRate(optionalDouble)
+          hc.setRatedWaterFlowRate(optionalDouble)
         end
-        if hc_cap > 0
+
+        unless hc_cap_si.nil?
           optionalDoubleCap = OpenStudio::OptionalDouble.new(hc_cap_si)
-          htg_coil.setRatedHeatingCapacity(optionalDoubleCap)
-        end
-        if hc_cop > 0
-          #optionalDoubleCOP = OpenStudio::OptionalDouble.new(hc_cop)
-          htg_coil.setRatedHeatingCoefficientofPerformance(hc_cop) #not setRatedCOP
+          hc.setRatedHeatingCapacity(optionalDoubleCap)
         end
 
-        # set clg coil fields
-        if cc_air_flow > 0
-          #optionalDouble = OpenStudio::OptionalDouble.new(cc_air_flow)
-          clg_coil.setRatedAirFlowRate(cc_air_flow_si)
-        end
-        if cc_wtr_flow > 0
-          #optionalDouble = OpenStudio::OptionalDouble.new(cc_wtr_flow)
-          clg_coil.setRatedWaterFlowRate(cc_wtr_flow_si)
-        end
-        if cc_cap > 0
-          #optionalDoubleCap = OpenStudio::OptionalDouble.new(cc_cap)
-          clg_coil.setRatedTotalCoolingCapacity(cc_cap_si)
-        end
-        if cc_sen_cap > 0
-          #optionalDoubleCap = OpenStudio::OptionalDouble.new(cc_sen_cap)
-          clg_coil.setRatedSensibleCoolingCapacity(cc_sen_cap_si)
-        end
-        if cc_cop > 0
-          #optionalDoubleCOP = OpenStudio::OptionalDouble.new(hc_cop)
-          clg_coil.setRatedCoolingCoefficientofPerformance(hc_cop)
+        hc.setRatedHeatingCoefficientofPerformance(hc_cop) unless hc_cop.nil?
+
+        #count_hc += 1
+
+        # set CC fields
+        cc.setRatedAirFlowRate(cc_air_flow_si) unless cc_air_flow_si.nil?
+        cc.setRatedWaterFlowRate(cc_wtr_flow_si) unless cc_wtr_flow_si.nil?
+        cc.setRatedTotalCoolingCapacity(cc_cap_si) unless cc_cap_si.nil? #TODO doesn't stick
+        cc.setRatedSensibleCoolingCapacity(cc_sen_cap_si) unless cc_sen_cap_si.nil?
+        cc.setRatedCoolingCoefficientofPerformance(cc_cop) unless cc_cop.nil?
+
+        #count_cc += 1
+
+        # set supplemental heating coil fields
+        if sc_type.nil?
+          next
+        elsif sc_type == "CoilHeatingElectric" or sc_type == "CoilHeatingGas"
+          optionalDoubleCap = OpenStudio::OptionalDouble.new(sc_cap_si)
+          sc.setNominalCapacity(optionalDoubleCap) unless sc_cap_si.nil?
+        elsif sc_type == "CoilHeatingWater"
+          optionalDoubleCap = OpenStudio::OptionalDouble.new(sc_cap_si)
+          sc.setRatedCapacity(optionalDoubleCap) unless sc_cap_si.nil?
         end
 
-        n_wshps += 1
+        #count_sc += 1
 
       else
 
@@ -386,7 +502,7 @@ Coil:Cooling:WaterToAirHeatPump:EquationFit,
     end
 
     # report final conditions
-    runner.registerFinalCondition("Number of WSHPs changed = #{n_wshps}")
+    runner.registerFinalCondition("Number of WSHPs changed = #{count_wshps}")
 
     return true
 
