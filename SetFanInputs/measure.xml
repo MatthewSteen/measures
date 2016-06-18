@@ -2,7 +2,7 @@
   <schema_version>3.0</schema_version>
   <name>set_fan_inputs</name>
   <uid>1371b7e7-4307-4f4d-8673-f5f4600f5645</uid>
-  <version_id>5e2884dc-582d-445b-ba67-8ce6f4f7ff1a</version_id>
+  <version_id>5beb3c82-b748-4bcd-8498-c087f21aece7</version_id>
   <xml_checksum>F78494F2</xml_checksum>
   <class_name>SetFanInputs</class_name>
   <display_name>Set Fan Inputs</display_name>
@@ -40,6 +40,24 @@
         <choice>
           <value>FanZoneExhaust</value>
           <display_name>FanZoneExhaust</display_name>
+        </choice>
+      </choices>
+    </argument>
+    <argument>
+      <name>autosize</name>
+      <display_name>TODO Autosize all fields?</display_name>
+      <type>Boolean</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+      <default_value>false</default_value>
+      <choices>
+        <choice>
+          <value>true</value>
+          <display_name>true</display_name>
+        </choice>
+        <choice>
+          <value>false</value>
+          <display_name>false</display_name>
         </choice>
       </choices>
     </argument>
@@ -231,7 +249,7 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>C131FA78</checksum>
+      <checksum>18BED12F</checksum>
     </file>
   </files>
 </measure>

@@ -1,19 +1,15 @@
-#start the measure
+# start the measure
 class SetFCUInputs < OpenStudio::Ruleset::ModelUserScript
 
-  #define the name that a user will see, this method may be deprecated as
-  #the display name in PAT comes from the name field in measure.xml
+  # define the name that the user will see
   def name
     return "Set FCU Inputs"
   end
 
-  #define the arguments that the user will input
+  # define the arguments that the user will input
   def arguments(model)
 
     args = OpenStudio::Ruleset::OSArgumentVector.new
-
-    # OS version = 1.7.0
-    # EP version = 8.2.0
 
     # argument for string
 		string = OpenStudio::Ruleset::OSArgument::makeStringArgument("string", false)
@@ -21,7 +17,7 @@ class SetFCUInputs < OpenStudio::Ruleset::ModelUserScript
     string.setDescription("(case sensitive, leave blank for all)")
 		args << string
 
-    # fcu arguments
+    #TODO add autosize option?
 
     #populate choice argument for schedules in the model
     sch_handles = OpenStudio::StringVector.new
@@ -42,11 +38,6 @@ class SetFCUInputs < OpenStudio::Ruleset::ModelUserScript
         end
       end
     end
-    #argument for schedules
-    fcu_sched = OpenStudio::Ruleset::OSArgument::makeChoiceArgument("fcu_sched", sch_handles, sch_display_names, false)
-    fcu_sched.setDisplayName("Availability Schedule Name")
-    args << fcu_sched
-
     '
     ZoneHVAC:FourPipeFanCoil,
         ,                        !- Name
@@ -74,10 +65,14 @@ class SetFCUInputs < OpenStudio::Ruleset::ModelUserScript
         ,                        !- Minimum Hot Water Flow Rate {m3/s}
         0.001,                   !- Heating Convergence Tolerance
         ,                        !- Availability Manager List Name
-        1;                       !- Design Specification ZoneHVAC Sizing Object Name
+        0;                       !- Design Specification ZoneHVAC Sizing Object Name
     '
+    # fcu arguments
+    fcu_sched = OpenStudio::Ruleset::OSArgument::makeChoiceArgument("fcu_sched", sch_handles, sch_display_names, false)
+    fcu_sched.setDisplayName("FCU: Availability Schedule Name")
+    args << fcu_sched
 
-    fcu_method = nil #TODO check GUI
+    fcu_method = nil #TODO check GUI function
 
     fcu_sa_flow = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("fcu_sa_flow", false)
     fcu_sa_flow.setDisplayName("FCU: Maximum Supply Air Flow Rate {ft3/min}")
@@ -142,44 +137,43 @@ Coil:Cooling:Water,
     0;                       !- Condensate Collection Water Storage Tank Name
 '
     # clg coil arguments
-
     cc_sched = OpenStudio::Ruleset::OSArgument::makeChoiceArgument("cc_sched", sch_handles, sch_display_names, false)
-    cc_sched.setDisplayName("Clg Coil: Availability Schedule Name")
+    cc_sched.setDisplayName("CC: Availability Schedule Name")
     args << cc_sched
 
     cc_wtr_flow = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("cc_wtr_flow", false)
-    cc_wtr_flow.setDisplayName("Clg Coil: Design Water Flow Rate {gal/min}")
+    cc_wtr_flow.setDisplayName("CC: Design Water Flow Rate {gal/min}")
     args << cc_wtr_flow
 
     cc_air_flow = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("cc_air_flow", false)
-    cc_air_flow.setDisplayName("Clg Coil: Design Air Flow Rate {GPM} ") #TODO ft3/min when issue #1365 closed
+    cc_air_flow.setDisplayName("CC: Design Air Flow Rate {GPM} ") #TODO ft3/min when issue #1365 closed
     args << cc_air_flow
 
     cc_ewt = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("cc_ewt", false)
-    cc_ewt.setDisplayName("Clg Coil: Design Inlet Water Temperature {F}")
+    cc_ewt.setDisplayName("CC: Design Inlet Water Temperature {F}")
     args << cc_ewt
 
     cc_eat = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("cc_eat", false)
-    cc_eat.setDisplayName("Clg Coil: Design Inlet Air Temperature {F}")
+    cc_eat.setDisplayName("CC: Design Inlet Air Temperature {F}")
     args << cc_eat
 
     cc_lat = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("cc_lat", false)
-    cc_lat.setDisplayName("Clg Coil: Design Outlet Air Temperature {F}")
+    cc_lat.setDisplayName("CC: Design Outlet Air Temperature {F}")
     args << cc_lat
 
     cc_humrat_in = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("cc_humrat_in", false)
-    cc_humrat_in.setDisplayName("Clg Coil: Design Inlet Air Humidity Ratio")
+    cc_humrat_in.setDisplayName("CC: Design Inlet Air Humidity Ratio")
     args << cc_humrat_in
 
     cc_humrat_out = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("cc_humrat_out", false)
-    cc_humrat_out.setDisplayName("Clg Coil: Design Outlet Air Humidity Ratio")
+    cc_humrat_out.setDisplayName("CC: Design Outlet Air Humidity Ratio")
     args << cc_humrat_out
 
     cc_analysis_choices = OpenStudio::StringVector.new
     cc_analysis_choices << "DetailedAnalysis"
     cc_analysis_choices << "SimpleAnalysis"
     cc_analysis = OpenStudio::Ruleset::OSArgument::makeChoiceArgument("cc_analysis", cc_analysis_choices, true)
-    cc_analysis.setDisplayName("Clg Coil: Type of Analysis")
+    cc_analysis.setDisplayName("CC: Type of Analysis")
     cc_analysis.setDefaultValue("SimpleAnalysis")
     args << cc_analysis
 
@@ -187,10 +181,10 @@ Coil:Cooling:Water,
     cc_config_choices << "CrossFlow"
     cc_config_choices << "CounterFlow"
     cc_config = OpenStudio::Ruleset::OSArgument::makeChoiceArgument("cc_config", cc_config_choices, true)
-    cc_config.setDisplayName("Clg Coil: Heat Exchanger Configuration")
+    cc_config.setDisplayName("CC: Heat Exchanger Configuration")
     cc_config.setDefaultValue("CounterFlow")
     args << cc_config
-"
+'
 Coil:Heating:Water,
     CoilHeatingWater,        !- Name
     ,                        !- Availability Schedule Name
@@ -207,51 +201,50 @@ Coil:Heating:Water,
     71.1,                    !- Rated Outlet Water Temperature {C}
     32.2,                    !- Rated Outlet Air Temperature {C}
     0.5;                     !- Rated Ratio for Air and Water Convection
-"
+'
     # htg coil arguments
-
     hc_sched = OpenStudio::Ruleset::OSArgument::makeChoiceArgument("hc_sched", sch_handles, sch_display_names, false)
-    hc_sched.setDisplayName("Htg Coil: Availability Schedule Name")
+    hc_sched.setDisplayName("HC: Availability Schedule Name")
     args << hc_sched
 
     hc_ua = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("hc_ua", false)
-    hc_ua.setDisplayName("Htg Coil: U-Factor Times Area Value {Btu/h-R}")
+    hc_ua.setDisplayName("HC: U-Factor Times Area Value {Btu/h-R}")
     args << hc_ua
 
     hc_wtr_flow_max = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("hc_wtr_flow_max", false)
-    hc_wtr_flow_max.setDisplayName("Htg Coil: Maximum Water Flow Rate {ft3/min}")
+    hc_wtr_flow_max.setDisplayName("HC: Maximum Water Flow Rate {ft3/min}")
     args << hc_wtr_flow_max
 
     hc_perf_choices = OpenStudio::StringVector.new
     hc_perf_choices << "Nominal Capacity"
     hc_perf_choices << "UFactorTimesAreaAndDesignWaterFlowRate"
     hc_perf = OpenStudio::Ruleset::OSArgument::makeChoiceArgument("hc_perf", hc_perf_choices, true)
-    hc_perf.setDisplayName("Htg Coil: Performance Input Method")
+    hc_perf.setDisplayName("HC: Performance Input Method")
     hc_perf.setDefaultValue("UFactorTimesAreaAndDesignWaterFlowRate")
     args << hc_perf
 
     hc_cap = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("hc_cap", false)
-    hc_cap.setDisplayName("Htg Coil: Rated Capacity {Btu/h}")
+    hc_cap.setDisplayName("HC: Rated Capacity {Btu/h}")
     args << hc_cap
 
     hc_ewt = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("hc_ewt", false)
-    hc_ewt.setDisplayName("Htg Coil: Rated Inlet Water Temperature {F}")
+    hc_ewt.setDisplayName("HC: Rated Inlet Water Temperature {F}")
     args << hc_ewt
 
     hc_eat = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("hc_eat", false)
-    hc_eat.setDisplayName("Htg Coil: Rated Inlet Air Temperature {F}")
+    hc_eat.setDisplayName("HC: Rated Inlet Air Temperature {F}")
     args << hc_eat
 
     hc_lwt = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("hc_lwt", false)
-    hc_lwt.setDisplayName("Htg Coil: Rated Outlet Water Temperature {F}")
+    hc_lwt.setDisplayName("HC: Rated Outlet Water Temperature {F}")
     args << hc_lwt
 
     hc_lat = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("hc_lat", false)
-    hc_lat.setDisplayName("Htg Coil: Rated Outlet Air Temperature {F}")
+    hc_lat.setDisplayName("HC: Rated Outlet Air Temperature {F}")
     args << hc_lat
 
     hc_conv_ratio = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("hc_conv_ratio", false)
-    hc_conv_ratio.setDisplayName("Htg Coil: Rated Ratio for Air and Water Convection")
+    hc_conv_ratio.setDisplayName("HC: Rated Ratio for Air and Water Convection")
     args << hc_conv_ratio
 
     return args
@@ -498,6 +491,7 @@ Coil:Heating:Water,
       hc_lat_si = OpenStudio.convert(hc_lat, "F", "C").get
     end
 
+#TODO remove
     hc_conv_ratio = runner.getOptionalDoubleArgumentValue("hc_conv_ratio", user_arguments)
     if hc_conv_ratio.empty?
       hc_conv_ratio = nil
@@ -511,8 +505,6 @@ Coil:Heating:Water,
 
     # get model objects
     fcus = model.getZoneHVACFourPipeFanCoils
-    clg_coils = model.getCoilCoolingWaters
-    htg_coils = model.getCoilHeatingWaters
 
     # report initial condition
     runner.registerInitialCondition("Number of FCUs in the model = #{fcus.size}")
@@ -541,7 +533,7 @@ Coil:Heating:Water,
         fcu.setMinimumHotWaterFlowRate(fcu_hw_flow_min_si) unless fcu_hw_flow_min_si.nil?
         fcu.setHeatingConvergenceTolerance(fcu_htg_tol) unless fcu_htg_tol.nil?
 
-        # set clg coil fields
+        # set CC fields
         cc.setAvailabilitySchedule(cc_sched) unless cc_sched.nil?
         cc.setDesignWaterFlowRate(cc_wtr_flow_si) unless cc_wtr_flow.nil?
         cc.setDesignAirFlowRate(cc_air_flow_si) unless cc_air_flow.nil?
@@ -553,7 +545,7 @@ Coil:Heating:Water,
         cc.setTypeOfAnalysis(cc_analysis) unless cc_analysis.nil?
         cc.setHeatExchangerConfiguration(cc_config) unless cc_config.nil?
 
-        # set htg coil fields
+        # set HC fields
         hc.setAvailabilitySchedule(hc_sched) unless hc_sched.nil?
         hc.setUFactorTimesAreaValue(hc_ua_si) unless hc_ua.nil?
         hc.setMaximumWaterFlowRate(hc_wtr_flow_max_si) unless hc_wtr_flow_max.nil?
@@ -573,13 +565,13 @@ Coil:Heating:Water,
 
       end
 
-    end #main
+    end
 
     if error == true
       runner.registerError("String not found.")
     end
 
-    # final conditions
+    # report final condition
     runner.registerFinalCondition("Number of FCUs changed = #{counter}")
 
     return true

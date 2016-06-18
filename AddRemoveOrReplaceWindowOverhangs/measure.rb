@@ -29,6 +29,39 @@ class AddRemoveOrReplaceWindowOverhangs < OpenStudio::Ruleset::ModelUserScript
     facade.setDisplayName("Facade")
     args << facade
 
+
+    #argument for space types
+    space_type_handles = OpenStudio::StringVector.new
+    space_type_display_names = OpenStudio::StringVector.new
+    
+    #putting model object and names into hash
+    space_type_args = model.getBuildingStorys
+    space_type_args_hash = {}
+    space_type_args.each do |space_type_arg|
+      space_type_args_hash[space_type_arg.name.to_s] = space_type_arg
+    end
+    
+    #looping through sorted hash of model objects
+    space_type_args_hash.sort.map do |key,value|
+      #only include if space type is used in the model
+      if value.spaces.size > 0
+        space_type_handles << value.handle.to_s
+        space_type_display_names << key
+      end
+    end
+    
+    #add building to string vector with space type
+    building = model.getBuilding
+    space_type_handles << building.handle.to_s
+    space_type_display_names << "*All Building Stories*"
+    
+    #make a choice argument for space type or entire building
+    space_type = OpenStudio::Ruleset::OSArgument::makeChoiceArgument("story", space_type_handles, space_type_display_names,false)
+    space_type.setDisplayName("Building Story")
+    space_type.setDefaultValue("*All Building Stories*") #if no space type is chosen this will run on the entire building
+    args << space_type
+    
+
     depth = OpenStudio::Ruleset::OSArgument::makeDoubleArgument("depth", false)
     depth.setDisplayName("Depth (in)")
     depth.setDescription("horizontal length of overhang")
@@ -235,6 +268,7 @@ class AddRemoveOrReplaceWindowOverhangs < OpenStudio::Ruleset::ModelUserScript
       next if s.subSurfaceType == "OverheadDoor"
       next if s.subSurfaceType == "TubularDaylightDome"
       next if s.subSurfaceType == "TubularDaylightDiffuser"
+#TODO      next if s.numberOfVertices.get != 4
 
       # get subsurface azimuth to determine facade
       azimuth = OpenStudio::Quantity.new(s.azimuth, OpenStudio::createSIAngle)

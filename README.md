@@ -1,4 +1,4 @@
-###OpenStudio Measures (unfinished but working)
+###OpenStudio Measures
 
 **Copying a measure without Git**
 
@@ -6,4 +6,4 @@
 2. Create a new measure in OpenStudio or PAT
 3. Open the newly created measure.rb file and replace the code
 
-Bugs and comments can be submitted through the `Issues` link in the upper right.
+Bugs and comments can be submitted through the [Issues](https://github.com/MatthewSteen/openstudio-measures/issues) page.

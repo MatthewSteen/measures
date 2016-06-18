@@ -17,6 +17,7 @@ class RenameZoneHVACEquipmentAndComponents < OpenStudio::Ruleset::ModelUserScrip
     eqpt_choices << "ZoneHVACPackagedTerminalHeatPump"
     eqpt_choices << "ZoneHVACUnitHeater"
     eqpt_choices << "ZoneHVACWaterToAirHeatPump"
+    eqpt_choices << "FanZoneExhaust"
     eqpt_type = OpenStudio::Ruleset::OSArgument::makeChoiceArgument("eqpt_type", eqpt_choices, true)
     eqpt_type.setDisplayName("Zone HVAC Equipment Type")
     args << eqpt_type
@@ -65,6 +66,7 @@ class RenameZoneHVACEquipmentAndComponents < OpenStudio::Ruleset::ModelUserScrip
     pthps = model.getZoneHVACPackagedTerminalHeatPumps
     uhs = model.getZoneHVACUnitHeaters
     wshps = model.getZoneHVACWaterToAirHeatPumps
+    efs = model.getFanZoneExhausts
 
     # report initial condition
     runner.registerInitialCondition("number of thermal zones = #{zones.size}")
@@ -262,6 +264,21 @@ class RenameZoneHVACEquipmentAndComponents < OpenStudio::Ruleset::ModelUserScrip
           end
 
         end #eqpt_type loop
+        
+      elsif eqpt_type == "FanZoneExhaust" and eqpt.to_FanZoneExhaust.is_initialized
+        
+        ef = eqpt.to_FanZoneExhaust.get
+        
+        # rename equipment
+        if rename_hvac_eqpt == true
+          ef.setName("#{z.name} EF")
+          count_eqpt += 1
+        end
+        
+        # rename components
+        if rename_hvac_comp == true
+          nil
+        end
 
       end #zone_eqpt loop
 

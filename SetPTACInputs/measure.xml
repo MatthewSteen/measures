@@ -2,7 +2,7 @@
   <schema_version>3.0</schema_version>
   <name>set_ptac_inputs</name>
   <uid>2eeabb8a-392e-45e7-b55c-d99bd8f10c72</uid>
-  <version_id>5551159e-bfed-456f-a842-1491cea7a42a</version_id>
+  <version_id>2f0d8f93-543c-455d-a2eb-64a5c23af98d</version_id>
   <xml_checksum>4435983D</xml_checksum>
   <class_name>SetPTACInputs</class_name>
   <display_name>Set PTAC Inputs</display_name>
@@ -16,6 +16,24 @@
       <type>String</type>
       <required>false</required>
       <model_dependent>false</model_dependent>
+    </argument>
+    <argument>
+      <name>autosize</name>
+      <display_name>TODO Autosize all fields?</display_name>
+      <type>Boolean</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+      <default_value>false</default_value>
+      <choices>
+        <choice>
+          <value>true</value>
+          <display_name>true</display_name>
+        </choice>
+        <choice>
+          <value>false</value>
+          <display_name>false</display_name>
+        </choice>
+      </choices>
     </argument>
     <argument>
       <name>ptac_sched</name>
@@ -208,7 +226,7 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>7E686304</checksum>
+      <checksum>0B1653E1</checksum>
     </file>
   </files>
 </measure>

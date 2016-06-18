@@ -11,11 +11,15 @@ class SetPTACInputs < OpenStudio::Ruleset::ModelUserScript
 
     args = OpenStudio::Ruleset::OSArgumentVector.new
 
-    # argument for string
 		string = OpenStudio::Ruleset::OSArgument::makeStringArgument("string", false)
 		string.setDisplayName("Set inputs for equipment containing the string:")
     string.setDescription("(case sensitive, leave blank for all)")
 		args << string
+
+    autosize = OpenStudio::Ruleset::OSArgument::makeBoolArgument("autosize", false)
+    autosize.setDisplayName("TODO Autosize all fields?")
+    autosize.setDefaultValue(false)
+    args << autosize
 
     #populate choice argument for schedules in the model
     sch_handles = OpenStudio::StringVector.new
@@ -420,7 +424,6 @@ class SetPTACInputs < OpenStudio::Ruleset::ModelUserScript
         ptac.setSupplyAirFlowRateDuringCoolingOperation(ptac_sa_clg_si) unless ptac_sa_clg_si.nil?
         ptac.setSupplyAirFlowRateDuringHeatingOperation(ptac_sa_htg_si) unless ptac_sa_htg_si.nil?
         ptac.setSupplyAirFlowRateWhenNoCoolingorHeatingisNeeded(ptac_sa_no_load_si) unless ptac_sa_no_load_si #TODO not working
-        runner.registerWarning("flow = #{ptac_sa_no_load}")
         ptac.setOutdoorAirFlowRateDuringCoolingOperation(ptac_oa_clg_si) unless ptac_oa_clg_si.nil?
         ptac.setOutdoorAirFlowRateDuringHeatingOperation(ptac_oa_htg_si) unless ptac_oa_htg_si.nil?
         ptac.setOutdoorAirFlowRateWhenNoCoolingorHeatingisNeeded(ptac_oa_no_load_si) unless ptac_oa_no_load_si.nil?
